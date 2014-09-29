@@ -35,6 +35,9 @@ public class FhirValidatorTest {
         XmlParser xmlParser = new XmlParser(theContext);
         Bundle bundle = xmlParser.parseBundle(encounterBundle);
         validator.validate(bundle);
+        validator.setValidateAgainstStandardSchema(true);
+        validator.setValidateAgainstStandardSchematron(true);
+        validator.validate(bundle);
     }
 //
 //    @Test
