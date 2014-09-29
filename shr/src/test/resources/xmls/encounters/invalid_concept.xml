@@ -6,7 +6,6 @@
     <updated>2014-07-25T16:50:29+05:30</updated>
     <author>
         <name>test author</name>
-        <email>test@test.com</email>
         <uri>http://localhost/admin/adminid</uri>
     </author>
     <entry>
@@ -35,7 +34,7 @@
                         <display value="Viral pneumonia 314247"/>
                     </coding>
                 </code>
-                <dateAsserted value="2014-07-25T16:51:37+05:30"/>
+                <dateAsserted value="2014-07-25"/>
                 <category>
                     <coding>
                         <system value="http://hl7.org/fhir/condition-category"/>

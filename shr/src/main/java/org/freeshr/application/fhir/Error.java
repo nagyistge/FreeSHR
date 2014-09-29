@@ -1,6 +1,5 @@
 package org.freeshr.application.fhir;
 
-
 import com.google.gson.Gson;
 
 public class Error {

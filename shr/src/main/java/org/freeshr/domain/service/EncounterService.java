@@ -2,10 +2,7 @@ package org.freeshr.domain.service;
 
 import org.freeshr.application.fhir.EncounterBundle;
 import org.freeshr.application.fhir.EncounterResponse;
-import org.freeshr.application.fhir.EncounterValidationResponse;
-import org.freeshr.application.fhir.FhirValidator;
 import org.freeshr.infrastructure.persistence.EncounterRepository;
-import org.freeshr.utils.concurrent.PreResolvedListenableFuture;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFuture;
@@ -20,13 +17,11 @@ public class EncounterService {
 
     private EncounterRepository encounterRepository;
     private PatientRegistry patientRegistry;
-    private FhirValidator fhirValidator;
 
     @Autowired
-    public EncounterService(EncounterRepository encounterRepository, PatientRegistry patientRegistry, FhirValidator fhirValidator) {
+    public EncounterService(EncounterRepository encounterRepository, PatientRegistry patientRegistry) {
         this.encounterRepository = encounterRepository;
         this.patientRegistry = patientRegistry;
-        this.fhirValidator = fhirValidator;
     }
 
     public ListenableFuture<EncounterResponse> ensureCreated(final EncounterBundle encounterBundle) throws ExecutionException, InterruptedException {
@@ -61,11 +56,12 @@ public class EncounterService {
     }
 
     private ListenableFuture<EncounterResponse> validate(EncounterBundle encounterBundle) {
-        final EncounterValidationResponse encounterValidationResponse = fhirValidator.validate(encounterBundle.getEncounterContent().toString());
-        if (!encounterValidationResponse.isSuccessful()) {
-            return new PreResolvedListenableFuture<>(new EncounterResponse().setValidationFailure(encounterValidationResponse));
-        } else {
-            return null;
-        }
+//        final EncounterValidationResponse encounterValidationResponse = fhirValidator.validate(encounterBundle.getEncounterContent());
+//        if (!encounterValidationResponse.isSuccessful()) {
+//            return new PreResolvedListenableFuture<>(new EncounterResponse().setValidationFailure(encounterValidationResponse));
+//        } else {
+//            return null;
+//        }
+        return null;
     }
 }

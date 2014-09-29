@@ -6,7 +6,6 @@
     <updated>2014-07-25T16:50:29+05:30</updated>
     <author>
         <name>test author</name>
-        <email>test@test.com</email>
         <uri>http://localhost/admin/adminid</uri>
     </author>
     <entry>
@@ -28,13 +27,20 @@
                 <asserter>
                     <reference value="7e2bd1c6-2370-418c-b2f7-1e46febc4ee0"/>
                 </asserter>
-                <dateAsserted value="2014-07-25T16:51:37+05:30"/>
+                <dateAsserted value="2014-07-25"/>
                 <category>
                     <coding>
                         <system value="http://hl7.org/fhir/condition-category-invalid"/>
                         <code value="diagnosis"/>
                     </coding>
                 </category>
+                <code>
+                    <coding>
+                        <system value="http://localhost:9997/openmrs/ws/rest/v1/tr/concepts/eddb01eb-61fc-4f9e-aca5-e44193509f35"/>
+                        <code value="eddb01eb-61fc-4f9e-aca5-e44193509f35"/>
+                        <display value="Viral pneumonia 785857"/>
+                    </coding>
+                </code>
                 <status value="confirmed"/>
             </Condition>
         </content>
