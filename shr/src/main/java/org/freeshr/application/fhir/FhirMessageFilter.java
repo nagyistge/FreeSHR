@@ -52,7 +52,7 @@ public class FhirMessageFilter {
     }
 
     private boolean shouldFilterMessagesOfType(ValidationMessage input) {
-        if (input.getLevel().equals(OperationOutcome.IssueSeverity.error))
+        if (input.getLevel().equals(OperationOutcome.IssueSeverity.ERROR))
             return false;
         if (input.getType().equalsIgnoreCase("code-unknown")) {
             for (String ignoreString : ignoreList) {

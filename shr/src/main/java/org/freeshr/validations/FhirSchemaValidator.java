@@ -1,7 +1,7 @@
 package org.freeshr.validations;
 
 import org.freeshr.application.fhir.TRConceptLocator;
-import org.freeshr.config.SHRProperties;
+import org.hl7.fhir.instance.utils.WorkerContext;
 import org.hl7.fhir.instance.validation.InstanceValidator;
 import org.hl7.fhir.instance.validation.ValidationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +22,11 @@ public class FhirSchemaValidator implements Validator<String> {
     private final InstanceValidator instanceValidator;
 
     @Autowired
-    public FhirSchemaValidator(TRConceptLocator trConceptLocator, SHRProperties shrProperties) throws Exception {
-        this.instanceValidator = new InstanceValidator(shrProperties.getValidationFilePath(), null, trConceptLocator);
+    public FhirSchemaValidator(TRConceptLocator trConceptLocator) throws Exception {
+        //TODO inject profiles if required
+        WorkerContext workerContext = WorkerContext.fromClassPath();
+        workerContext.setTerminologyServices(trConceptLocator);
+        this.instanceValidator = new InstanceValidator(workerContext);
     }
 
     private Document document(String sourceXml) throws ParserConfigurationException, SAXException, IOException {
@@ -36,10 +39,9 @@ public class FhirSchemaValidator implements Validator<String> {
 
 
     @Override
-    public List<ValidationMessage> validate(ValidationSubject<String> subject) {
-        String sourceXml = subject.extract();
+    public List<ValidationMessage> validate(String sourceXml) {
         try {
-            return instanceValidator.validateInstance(document(sourceXml).getDocumentElement());
+            return instanceValidator.validate(document(sourceXml).getDocumentElement());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

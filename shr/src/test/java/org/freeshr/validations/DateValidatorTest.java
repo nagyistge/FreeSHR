@@ -1,7 +1,9 @@
 package org.freeshr.validations;
 
-import org.hl7.fhir.instance.model.DateAndTime;
+import org.joda.time.DateTime;
 import org.junit.Test;
+
+import java.util.Date;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -11,33 +13,33 @@ public class DateValidatorTest {
     @Test
     public void shouldValidateDate() throws Exception {
         DateValidator dateValidator = new DateValidator();
-        DateAndTime dateAndTime = new DateAndTime("2014-12-31T00:00:00+05:30");
-        assertTrue(dateValidator.isValidDate(dateAndTime));
+        Date date = new DateTime("2014-12-31T00:00:00+05:30").toDate();
+        assertTrue(dateValidator.isValidDate(date));
     }
 
     @Test
     public void shouldValidateInvalidDate() throws Exception {
         DateValidator dateValidator = new DateValidator();
-        DateAndTime dateAndTime = new DateAndTime("2014-02-31T00:00:00+05:30");
-        assertFalse(dateValidator.isValidDate(dateAndTime));
+        Date Date = new DateTime("2014-02-31T00:00:00+05:30").toDate();
+        assertFalse(dateValidator.isValidDate(Date));
     }
 
     @Test
     public void shouldValidatePeriod() throws Exception {
         DateValidator dateValidator = new DateValidator();
 
-        DateAndTime startDate = new DateAndTime("2014-12-31T00:00:00+05:30");
-        DateAndTime endDate = new DateAndTime("2014-12-31T00:00:00+05:30");
+        Date startDate = new DateTime("2014-12-31T00:00:00+05:30").toDate();
+        Date endDate = new DateTime("2014-12-31T00:00:00+05:30").toDate();
         assertTrue(dateValidator.isValidPeriod(startDate, endDate));
 
 
-        startDate = new DateAndTime("2014-12-31T00:00:00+05:30");
+        startDate = new DateTime("2014-12-31T00:00:00+05:30").toDate();
         endDate = null;
         assertTrue(dateValidator.isValidPeriod(startDate, endDate));
 
 
         startDate = null;
-        endDate = new DateAndTime("2014-12-31T00:00:00+05:30");
+        endDate = new DateTime("2014-12-31T00:00:00+05:30").toDate();
         assertTrue(dateValidator.isValidPeriod(startDate, endDate));
 
     }
@@ -46,8 +48,8 @@ public class DateValidatorTest {
     public void shouldValidateInvalidPeriod() throws Exception {
         DateValidator dateValidator= new DateValidator();
 
-        DateAndTime startDate = new DateAndTime("2014-12-31T00:00:00+05:30");
-        DateAndTime endDate = new DateAndTime("2014-11-30T00:00:00+05:30");
+        Date startDate = new DateTime("2014-12-31T00:00:00+05:30").toDate();
+        Date endDate = new DateTime("2014-11-30T00:00:00+05:30").toDate();
         assertFalse(dateValidator.isValidPeriod(startDate, endDate));
 
     }

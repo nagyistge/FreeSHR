@@ -30,9 +30,9 @@ public class EncounterValidationContextTest {
 
         EncounterValidationContext validationContext = new EncounterValidationContext(encounterBundle,
                 resourceOrFeedDeserializer);
-        validationContext.getFeed();
-        validationContext.getFeed();
-        validationContext.getFeed();
+        validationContext.getBundle();
+        validationContext.getBundle();
+        validationContext.getBundle();
 
         verify(resourceOrFeedDeserializer, atMost(1)).deserialize(content);
 

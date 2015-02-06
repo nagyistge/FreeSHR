@@ -1,42 +1,55 @@
 package org.freeshr.application.fhir;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.freeshr.infrastructure.tr.TerminologyServer;
-import org.hl7.fhir.instance.model.Code;
+import org.freeshr.infrastructure.tr.CodeValidator;
+import org.freeshr.infrastructure.tr.CodeValidatorFactory;
+import org.hl7.fhir.instance.model.CodeType;
 import org.hl7.fhir.instance.model.OperationOutcome;
 import org.hl7.fhir.instance.model.ValueSet;
-import org.hl7.fhir.instance.utils.ConceptLocator;
+import org.hl7.fhir.instance.utils.ITerminologyServices;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
+import rx.Observable;
 
 import java.util.List;
 
-import static java.util.Collections.EMPTY_LIST;
-import static org.hl7.fhir.instance.model.ValueSet.ValueSetDefineConceptComponent;
 import static org.hl7.fhir.instance.model.ValueSet.ValueSetExpansionContainsComponent;
 
 @Component
-public class TRConceptLocator implements ConceptLocator {
+public class TRConceptLocator implements ITerminologyServices {
 
-    private TerminologyServer terminologyServer;
+    private final CodeValidatorFactory factory;
+
+    @Autowired
+    public TRConceptLocator(CodeValidatorFactory factory) {
+        this.factory = factory;
+    }
+
 
     private static Logger logger = Logger.getLogger(TRConceptLocator.class);
 
-    @Autowired
-    public TRConceptLocator(TerminologyServer terminologyServer) {
-        this.terminologyServer = terminologyServer;
+    @Override
+    public ValidationResult validateCode(String system, String code, String display) {
+        if (getCodeDefinition(system, code) == null) {
+            return new ValidationResult(OperationOutcome.IssueSeverity.ERROR, display);
+        }
+        return null;
     }
 
     @Override
-    public ValueSetDefineConceptComponent locate(String system, final String code) {
+    public boolean supportsSystem(String system) {
+        return StringUtils.contains(system, "openmrs");
+    }
+
+    @Override
+    public ValueSet.ConceptDefinitionComponent getCodeDefinition(String system, String code) {
         try {
-            final Boolean isValid = terminologyServer.isValid(system, code).toBlocking().first();
+            final Boolean isValid = isValid(system, code).toBlocking().first();
             if (isValid) {
-                Code conceptCode = new Code();
-                conceptCode.setValue(code);
-                return new ValueSetDefineConceptComponent(conceptCode);
+                CodeType codeType = new CodeType();
+                codeType.setValue(code);
+                return new ValueSet.ConceptDefinitionComponent(codeType);
             } else {
                 return null;
             }
@@ -47,22 +60,25 @@ public class TRConceptLocator implements ConceptLocator {
     }
 
     @Override
-    @Cacheable(value="shrCache")
-    public ValidationResult validate(String system, String code, String display) {
-        if (locate(system, code) == null) {
-            return new ValidationResult(OperationOutcome.IssueSeverity.error, display);
-        }
+    public List<ValueSetExpansionContainsComponent> expandVS(ValueSet.ConceptSetComponent inc) throws Exception {
         return null;
     }
 
     @Override
-    public boolean verifiesSystem(String system) {
-        //return StringUtils.contains(system, "openmrs");
-        return terminologyServer.verifiesSystem(system);
+    public boolean checkVS(ValueSet.ConceptSetComponent vsi, String system, String code) {
+        return true;
     }
 
     @Override
-    public List<ValueSetExpansionContainsComponent> expand(ValueSet.ConceptSetComponent inc) throws Exception {
-        return EMPTY_LIST;
+    public boolean verifiesSystem(String system) {
+        return StringUtils.contains(system, "openmrs");
+    }
+
+    public Observable<Boolean> isValid(String uri, String code) {
+        CodeValidator validator = factory.getValidator(uri);
+        if (validator != null) {
+            return validator.isValid(uri, code);
+        }
+        return Observable.just(false);
     }
 }

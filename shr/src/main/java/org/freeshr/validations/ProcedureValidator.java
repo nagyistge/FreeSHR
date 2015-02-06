@@ -3,6 +3,7 @@ package org.freeshr.validations;
 
 import org.freeshr.domain.ErrorMessageBuilder;
 import org.hl7.fhir.instance.model.*;
+import org.hl7.fhir.instance.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.instance.validation.ValidationMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,12 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.freeshr.domain.ErrorMessageBuilder.buildValidationMessage;
 
 @Component
-public class ProcedureValidator implements Validator<AtomEntry<? extends Resource>> {
+public class ProcedureValidator implements Validator<BundleEntryComponent> {
 
     private static final Logger logger = LoggerFactory.getLogger(ProcedureValidator.class);
     private static String DATE = "date";
@@ -28,17 +30,16 @@ public class ProcedureValidator implements Validator<AtomEntry<? extends Resourc
     }
 
     @Override
-    public List<ValidationMessage> validate(ValidationSubject<AtomEntry<? extends Resource>> subject) {
-        AtomEntry<? extends Resource> atomEntry = subject.extract();
+    public List<ValidationMessage> validate(BundleEntryComponent entry) {
         List<ValidationMessage> validationMessages = new ArrayList<>();
 
 
-        if (!validateDate(atomEntry, validationMessages)) {
+        if (!validateDate(entry, validationMessages)) {
             return validationMessages;
 
         }
 
-        if (!validateDiagnosticReport(atomEntry, validationMessages)) {
+        if (!validateDiagnosticReport(entry, validationMessages)) {
             return validationMessages;
 
         }
@@ -47,16 +48,16 @@ public class ProcedureValidator implements Validator<AtomEntry<? extends Resourc
     }
 
     //TODO: Decide if this func should be written(checks if link is present in the entire feed (Now checking for whether the link is not empty)
-    private boolean validateDiagnosticReport(AtomEntry<? extends Resource> atomEntry, List<ValidationMessage> validationMessages) {
-        String id = atomEntry.getId();
-        Property report = atomEntry.getResource().getChildByName(REPORT);
-        List<Element> reportElements = report.getValues();
-        for (Element reportElement : reportElements) {
-            if (reportElement instanceof ResourceReference) {
-                ResourceReference reference = (ResourceReference) reportElement;
-                if (reference.getReferenceSimple() == null || reference.getReferenceSimple().isEmpty()) {
+    private boolean validateDiagnosticReport(BundleEntryComponent entry, List<ValidationMessage> validationMessages) {
+        String id = entry.getId();
+        Property report = entry.getResource().getChildByName(REPORT);
+        List<Base> reportElements = report.getValues();
+        for (Base reportElement : reportElements) {
+            if (reportElement instanceof Reference) {
+                Reference reference = (Reference) reportElement;
+                if (reference.getReference() == null || reference.getReference().isEmpty()) {
                     logger.error("Should have reference to Diagnostic Report resource");
-                    validationMessages.add(buildValidationMessage(id, ResourceValidator.INVALID, ErrorMessageBuilder.INVALID_DIAGNOSTIC_REPORT_REFERNECE, OperationOutcome.IssueSeverity.error));
+                    validationMessages.add(buildValidationMessage(id, ResourceValidator.INVALID, ErrorMessageBuilder.INVALID_DIAGNOSTIC_REPORT_REFERNECE, OperationOutcome.IssueSeverity.ERROR));
                     return false;
                 }
             }
@@ -67,20 +68,20 @@ public class ProcedureValidator implements Validator<AtomEntry<? extends Resourc
 
     }
 
-    private boolean validateDate(AtomEntry<? extends Resource> atomEntry, List<ValidationMessage> validationMessages) {
-        String id = atomEntry.getId();
-        Property date = atomEntry.getResource().getChildByName(DATE);
-        List<Element> dateElements = date.getValues();
-        for (Element element : dateElements) {
+    private boolean validateDate(BundleEntryComponent entry, List<ValidationMessage> validationMessages) {
+        String id = entry.getId();
+        Property date = entry.getResource().getChildByName(DATE);
+        List<Base> dateElements = date.getValues();
+        for (Base element : dateElements) {
             if (element instanceof Period) {
                 Period period = (Period) element;
-                DateAndTime endDate = period.getEndSimple();
-                DateAndTime startDate = period.getStartSimple();
+                Date endDate = period.getEnd();
+                Date startDate = period.getStart();
 
 
                 if (!dateValidator.isValidPeriod(startDate, endDate)) {
                     logger.error("Invalid Period Date. ");
-                    validationMessages.add(buildValidationMessage(id, ResourceValidator.INVALID, ErrorMessageBuilder.INVALID_PERIOD, OperationOutcome.IssueSeverity.error));
+                    validationMessages.add(buildValidationMessage(id, ResourceValidator.INVALID, ErrorMessageBuilder.INVALID_PERIOD, OperationOutcome.IssueSeverity.ERROR));
                     return false;
                 }
 

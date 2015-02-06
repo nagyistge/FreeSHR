@@ -5,12 +5,10 @@ import org.freeshr.config.SHREnvironmentMock;
 import org.freeshr.validations.DoseQuantityValidator;
 import org.freeshr.validations.ImmunizationValidator;
 import org.freeshr.validations.UrlValidator;
-import org.freeshr.validations.ValidationSubject;
-import org.hl7.fhir.instance.model.AtomEntry;
+import org.hl7.fhir.instance.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.instance.model.OperationOutcome;
-import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceType;
-import org.hl7.fhir.instance.utils.ConceptLocator;
+import org.hl7.fhir.instance.utils.ITerminologyServices.ValidationResult;
 import org.hl7.fhir.instance.validation.ValidationMessage;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.List;
 
 import static org.freeshr.domain.ErrorMessageBuilder.INVALID_DOSAGE_QUANTITY;
-import static org.freeshr.utils.AtomFeedHelper.getAtomFeed;
+import static org.freeshr.utils.BundleHelper.getBundleEntry;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
@@ -50,12 +48,12 @@ public class ImmunizationValidatorTest {
 
     @Test
     public void shouldValidateImmunization() throws Exception {
-        ValidationSubject<AtomEntry<? extends Resource>> feed = getAtomFeed("xmls/encounters/immunization/immunization_valid.xml", ResourceType.Immunization);
+        BundleEntryComponent bundleEntry = getBundleEntry("xmls/encounters/immunization/immunization_valid.xml", ResourceType.Immunization);
 
         when(trConceptLocator.verifiesSystem(anyString())).thenReturn(true);
         ImmunizationValidator immunizationValidator = getValidator();
 
-        List<ValidationMessage> validationMessages = immunizationValidator.validate(feed);
+        List<ValidationMessage> validationMessages = immunizationValidator.validate(bundleEntry);
 
         assertTrue(validationMessages.isEmpty());
     }
@@ -63,16 +61,16 @@ public class ImmunizationValidatorTest {
     @Test
     public void shouldRejectInvalidDoseQuantityType() {
 
-        ValidationSubject<AtomEntry<? extends Resource>> feed = getAtomFeed("xmls/encounters/immunization/immunization_invalid_dose_quantity.xml",ResourceType.Immunization);
+        BundleEntryComponent bundleEntry = getBundleEntry("xmls/encounters/immunization/immunization_invalid_dose_quantity.xml", ResourceType.Immunization);
 
         when(trConceptLocator.verifiesSystem(anyString())).thenReturn(true);
-        when(trConceptLocator.validate(anyString(), eq("INVALID-CODE"),
-                anyString())).thenReturn(new ConceptLocator.ValidationResult(OperationOutcome.IssueSeverity.error,
+        when(trConceptLocator.validateCode(anyString(), eq("INVALID-CODE"),
+                anyString())).thenReturn(new ValidationResult(OperationOutcome.IssueSeverity.ERROR,
                 "Invalid code"));
 
         ImmunizationValidator immunizationValidator = getValidator();
 
-        List<ValidationMessage> validationMessasges = immunizationValidator.validate(feed);
+        List<ValidationMessage> validationMessasges = immunizationValidator.validate(bundleEntry);
 
         assertEquals(1,validationMessasges.size());
         assertEquals(INVALID_DOSAGE_QUANTITY,validationMessasges.get(0).getMessage());

@@ -2,12 +2,12 @@ package org.freeshr.validations;
 
 import org.freeshr.application.fhir.EncounterBundle;
 import org.freeshr.utils.ResourceOrFeedDeserializer;
-import org.hl7.fhir.instance.model.AtomFeed;
+import org.hl7.fhir.instance.model.Bundle;
 
 public class EncounterValidationContext {
     private EncounterBundle encounterBundle;
     private ResourceOrFeedDeserializer resourceOrFeedDeserializer;
-    private AtomFeed feed;
+    private Bundle feed;
 
     public EncounterValidationContext(EncounterBundle encounterBundle,
                                       ResourceOrFeedDeserializer resourceOrFeedDeserializer) {
@@ -15,7 +15,7 @@ public class EncounterValidationContext {
         this.resourceOrFeedDeserializer = resourceOrFeedDeserializer;
     }
 
-    public AtomFeed getFeed() {
+    public Bundle getBundle() {
         //deserialize only once
         if (feed != null) return feed;
         feed = resourceOrFeedDeserializer.deserialize(encounterBundle.getContent());
@@ -26,31 +26,7 @@ public class EncounterValidationContext {
         return this.encounterBundle.getHealthId();
     }
 
-
-    public ValidationSubject<AtomFeed> feedFragment() {
-        return new ValidationSubject<AtomFeed>() {
-            @Override
-            public AtomFeed extract() {
-                return getFeed();
-            }
-        };
-    }
-
-    public ValidationSubject<EncounterValidationContext> context() {
-        return new ValidationSubject<EncounterValidationContext>() {
-            @Override
-            public EncounterValidationContext extract() {
-                return EncounterValidationContext.this;
-            }
-        };
-    }
-
-    public ValidationSubject<String> sourceFragment() {
-        return new ValidationSubject<String>() {
-            @Override
-            public String extract() {
-                return encounterBundle.getContent();
-            }
-        };
+    public String sourceFragment() {
+        return encounterBundle.getContent();
     }
 }

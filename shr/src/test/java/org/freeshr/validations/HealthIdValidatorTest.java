@@ -5,7 +5,6 @@ import org.freeshr.application.fhir.EncounterValidationResponse;
 import org.freeshr.application.fhir.FhirMessageFilter;
 import org.freeshr.utils.FileUtil;
 import org.freeshr.utils.ResourceOrFeedDeserializer;
-import org.hl7.fhir.instance.model.AtomFeed;
 import org.hl7.fhir.instance.validation.ValidationMessage;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +30,6 @@ public class HealthIdValidatorTest {
     @Test
     public void shouldAcceptEncounterIfHealthIdInTheXmlMatchesTheGivenHealthId() {
         final String xml = FileUtil.asString("xmls/encounters/diagnostic_order_valid.xml");
-        AtomFeed feed = resourceOrFeedDeserializer.deserialize(xml);
         List<ValidationMessage> response = healthIdValidator.validate(getEncounterContext(xml, "5893922485019082753"));
         assertThat(EncounterValidationResponse.fromValidationMessages(response, fhirMessageFilter).isSuccessful(),
                 is(true));
@@ -41,7 +39,6 @@ public class HealthIdValidatorTest {
     @Test
     public void shouldNotAcceptEncounterIfNoHealthIdIsPresentInComposition() {
         String xml = FileUtil.asString("xmls/encounters/invalid_composition.xml");
-        AtomFeed feed = resourceOrFeedDeserializer.deserialize(xml);
         EncounterValidationResponse response = EncounterValidationResponse.fromValidationMessages(
                 healthIdValidator.validate(getEncounterContext(xml, "5893922485019082753")), fhirMessageFilter);
         assertThat(response.isSuccessful(), is(false));
@@ -53,7 +50,6 @@ public class HealthIdValidatorTest {
     @Test
     public void shouldRejectEncounterIfHealthIdInTheXmlDoesNotMatchTheGivenHealthId() {
         String xml = FileUtil.asString("xmls/encounters/encounter.xml");
-        AtomFeed feed = resourceOrFeedDeserializer.deserialize(xml);
         EncounterValidationResponse response = EncounterValidationResponse.fromValidationMessages(
                 healthIdValidator.validate(getEncounterContext(xml, "11112222233333")), fhirMessageFilter);
         assertThat(response.isSuccessful(), is(false));
@@ -64,7 +60,6 @@ public class HealthIdValidatorTest {
     @Test
     public void shouldRejectEncounterIfThereIsNoHealthIdInTheComposition() {
         String xml = FileUtil.asString("xmls/encounters/encounter.xml");
-        AtomFeed feed = resourceOrFeedDeserializer.deserialize(xml);
         EncounterValidationResponse response = EncounterValidationResponse.fromValidationMessages(
                 healthIdValidator.validate(getEncounterContext(xml, "11112222233333")), fhirMessageFilter);
         assertThat(response.isSuccessful(), is(false));
@@ -73,17 +68,11 @@ public class HealthIdValidatorTest {
     }
 
 
-    private ValidationSubject<EncounterValidationContext> getEncounterContext(final String xml, final String healthId) {
-        return new ValidationSubject<EncounterValidationContext>() {
-            @Override
-            public EncounterValidationContext extract() {
-                EncounterBundle encounterBundle = new EncounterBundle();
-                encounterBundle.setEncounterContent(xml);
-                encounterBundle.setHealthId(healthId);
-                return new EncounterValidationContext(encounterBundle, resourceOrFeedDeserializer);
-
-            }
-        };
+    private EncounterValidationContext getEncounterContext(final String xml, final String healthId) {
+        EncounterBundle encounterBundle = new EncounterBundle();
+        encounterBundle.setEncounterContent(xml);
+        encounterBundle.setHealthId(healthId);
+        return new EncounterValidationContext(encounterBundle, resourceOrFeedDeserializer);
     }
 
 }

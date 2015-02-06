@@ -1,11 +1,13 @@
 package org.freeshr.validations;
 
 
-import org.hl7.fhir.instance.model.DateAndTime;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeFieldType;
 import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 @Component
@@ -14,31 +16,18 @@ public class DateValidator {
     private static final String DATE_FORMAT = "dd-MM-yyyy";
 
     //NOTE:Assuming:When Both Dates are null or one is null,there is no Period.So Valid one
-    public boolean isValidPeriod(DateAndTime startDate, DateAndTime endDate) {
+    public boolean isValidPeriod(Date startDate, Date endDate) {
         if (startDate != null && endDate != null) {
-            if (isValidDate(startDate) && isValidDate(endDate) && (startDate.before(endDate) || (startDate.toString()).equals(endDate.toString()))) {
-                return true;
-            }
-            return false;
+            return (startDate.before(endDate) || (startDate.toString()).equals(endDate.toString()));
         }
-
         return true;
     }
 
 
-    public boolean isValidDate(DateAndTime dateTime) {
-        if (dateTime == null) {
-            return false;
-        }
-        return isValidDate(getDateInStringFormat(dateTime));
+    public boolean isValidDate(Date date) {
 
+        String dateToValidate = getDateInStringFormat(date);
 
-    }
-
-    public boolean isValidDate(String dateToValidate) {
-        if (dateToValidate == null) {
-            return false;
-        }
         try {
 
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT);
@@ -52,10 +41,13 @@ public class DateValidator {
         }
 
         return true;
+
+
     }
 
-    private String getDateInStringFormat(DateAndTime dateAndTime) {
+    private String getDateInStringFormat(Date date) {
 
-        return dateAndTime.getDay() + "-" + dateAndTime.getMonth() + "-" + dateAndTime.getYear();
+        DateTime dateTime = new DateTime(date);
+        return dateTime.get(DateTimeFieldType.dayOfMonth()) + "-" + dateTime.get(DateTimeFieldType.monthOfYear()) + "-" + dateTime.get(DateTimeFieldType.year());
     }
 }

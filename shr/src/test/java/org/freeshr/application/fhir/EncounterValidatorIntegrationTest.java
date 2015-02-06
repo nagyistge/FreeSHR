@@ -1,18 +1,16 @@
 package org.freeshr.application.fhir;
 
-import ch.qos.logback.classic.util.ContextInitializer;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.freeshr.config.SHRConfig;
 import org.freeshr.config.SHREnvironmentMock;
 import org.freeshr.config.SHRProperties;
 import org.freeshr.data.EncounterBundleData;
-import static org.freeshr.domain.ErrorMessageBuilder.*;
 import org.freeshr.infrastructure.tr.ValueSetCodeValidator;
 import org.freeshr.utils.CollectionUtils;
 import org.freeshr.utils.FileUtil;
 import org.freeshr.validations.*;
 import org.hl7.fhir.instance.model.OperationOutcome;
-import org.hl7.fhir.instance.utils.ConceptLocator;
+import org.hl7.fhir.instance.utils.ITerminologyServices;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -23,10 +21,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.freeshr.domain.ErrorMessageBuilder.INVALID_DISPENSE_MEDICATION_REFERENCE_URL;
+import static org.freeshr.domain.ErrorMessageBuilder.INVALID_MEDICATION_REFERENCE_URL;
 import static org.freeshr.utils.FileUtil.asString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -63,7 +62,7 @@ public class EncounterValidatorIntegrationTest {
     @Before
     public void setup() throws Exception {
         initMocks(this);
-        fhirSchemaValidator = new FhirSchemaValidator(trConceptLocator, shrProperties);
+//        fhirSchemaValidator = new FhirSchemaValidator(trConceptLocator, shrProperties);
         validator = new EncounterValidator(fhirMessageFilter, fhirSchemaValidator, resourceValidator,
                 healthIdValidator, structureValidator);
         encounterBundle = EncounterBundleData.withValidEncounter();
@@ -103,8 +102,8 @@ public class EncounterValidatorIntegrationTest {
     @Test
     public void shouldRejectEncounterWithInvalidConcept() {
         when(trConceptLocator.verifiesSystem(anyString())).thenReturn(true);
-        when(trConceptLocator.validate(anyString(), eq("invalid-eddb01eb-61fc-4f9e-aca5"),
-                anyString())).thenReturn(new ConceptLocator.ValidationResult(OperationOutcome.IssueSeverity.error,
+        when(trConceptLocator.validateCode(anyString(), eq("invalid-eddb01eb-61fc-4f9e-aca5"),
+                anyString())).thenReturn(new ITerminologyServices.ValidationResult(OperationOutcome.IssueSeverity.ERROR,
                 "Invalid code"));
 
         encounterBundle = EncounterBundleData.encounter(EncounterBundleData.HEALTH_ID,
@@ -115,8 +114,8 @@ public class EncounterValidatorIntegrationTest {
     @Test
     public void shouldRejectEncounterWithInvalidConceptReferenceTerms() {
         when(trConceptLocator.verifiesSystem(anyString())).thenReturn(true);
-        when(trConceptLocator.validate(anyString(), eq("INVALID_REFERENCE_TERM"),
-                anyString())).thenReturn(new ConceptLocator.ValidationResult(OperationOutcome.IssueSeverity.error,
+        when(trConceptLocator.validateCode(anyString(), eq("INVALID_REFERENCE_TERM"),
+                anyString())).thenReturn(new ITerminologyServices.ValidationResult(OperationOutcome.IssueSeverity.ERROR,
                 "Invalid code"));
 
         encounterBundle = EncounterBundleData.encounter(EncounterBundleData.HEALTH_ID,
@@ -210,8 +209,8 @@ public class EncounterValidatorIntegrationTest {
     public void shouldInvalidateWrongCodesInObservations() {
         encounterBundle = EncounterBundleData.encounter(EncounterBundleData.HEALTH_ID,
                 FileUtil.asString("xmls/encounters/encounter_with_obs_invalid.xml"));
-        when(trConceptLocator.validate(anyString(), eq("77405a73-b915-4a93-87a7-f29fe6697fb4-INVALID"),
-                anyString())).thenReturn(new ConceptLocator.ValidationResult(OperationOutcome.IssueSeverity.error,
+        when(trConceptLocator.validateCode(anyString(), eq("77405a73-b915-4a93-87a7-f29fe6697fb4-INVALID"),
+                anyString())).thenReturn(new ITerminologyServices.ValidationResult(OperationOutcome.IssueSeverity.ERROR,
                 "Invalid code"));
         when(trConceptLocator.verifiesSystem(anyString())).thenReturn(true);
         EncounterValidationResponse encounterValidationResponse = validator.validate(encounterBundle);
@@ -243,7 +242,7 @@ public class EncounterValidatorIntegrationTest {
                 ("http://localhost:9997/openmrs/ws/rest/v1/tr/concepts/79647ed4-a60e-4cf5-ba68-cf4d55956cba");
         verify(trConceptLocator, times(1)).verifiesSystem
                 ("http://localhost:9997/openmrs/ws/rest/v1/tr/vs/encounter-type");
-        verify(trConceptLocator, times(1)).validate("http://localhost:9997/openmrs/ws/rest/v1/tr/vs/encounter-type",
+        verify(trConceptLocator, times(1)).validateCode("http://localhost:9997/openmrs/ws/rest/v1/tr/vs/encounter-type",
                 "REG", "registration");
         assertTrue(encounterValidationResponse.isSuccessful());
     }
@@ -282,7 +281,7 @@ public class EncounterValidatorIntegrationTest {
                 FileUtil.asString("xmls/encounters/medication_prescription_valid.xml"));
         when(trConceptLocator.verifiesSystem(anyString())).thenReturn(true);
         EncounterValidationResponse validationResponse = validator.validate(encounterBundle);
-        verify(trConceptLocator, times(1)).validate("http://localhost:9997/openmrs/ws/rest/v1/tr/vs/Route-of-Administration", "implant", "implant");
+        verify(trConceptLocator, times(1)).validateCode("http://localhost:9997/openmrs/ws/rest/v1/tr/vs/Route-of-Administration", "implant", "implant");
         assertTrue("Medication prescription pass through validation", validationResponse.isSuccessful());
     }
 
@@ -294,7 +293,7 @@ public class EncounterValidatorIntegrationTest {
 
         EncounterValidationResponse encounterValidationResponse = validator.validate(encounterBundle);
         verify(trConceptLocator, times(1)).verifiesSystem("http://localhost:9997/openmrs/ws/rest/v1/tr/vs/Route-of-Administration");
-        verify(trConceptLocator, times(1)).validate("http://localhost:9997/openmrs/ws/rest/v1/tr/vs/Route-of-Administration", "implant", "implant");
+        verify(trConceptLocator, times(1)).validateCode("http://localhost:9997/openmrs/ws/rest/v1/tr/vs/Route-of-Administration", "implant", "implant");
         assertTrue(encounterValidationResponse.isSuccessful());
     }
 
@@ -304,8 +303,8 @@ public class EncounterValidatorIntegrationTest {
                 FileUtil.asString("xmls/encounters/medication_prescription_route_valid.xml"));
         when(trConceptLocator.verifiesSystem(anyString())).thenReturn(true);
         EncounterValidationResponse validationResponse = validator.validate(encounterBundle);
-        verify(trConceptLocator, times(1)).validate("http://172.18.46.56:9080/openmrs/ws/rest/v1/tr/vs/dosageInstruction-site", "181220002", "Entire oral cavity");
-        verify(trConceptLocator, times(1)).validate("http://172.18.46.56:9080/openmrs/ws/rest/v1/tr/vs/prescription-reason", "38341003", "High blood pressure");
+        verify(trConceptLocator, times(1)).validateCode("http://172.18.46.56:9080/openmrs/ws/rest/v1/tr/vs/dosageInstruction-site", "181220002", "Entire oral cavity");
+        verify(trConceptLocator, times(1)).validateCode("http://172.18.46.56:9080/openmrs/ws/rest/v1/tr/vs/prescription-reason", "38341003", "High blood pressure");
         assertTrue(validationResponse.isSuccessful());
 
     }
@@ -327,7 +326,7 @@ public class EncounterValidatorIntegrationTest {
                 FileUtil.asString("xmls/encounters/medication_prescription_dispense_addinformation_valid.xml"));
         when(trConceptLocator.verifiesSystem(anyString())).thenReturn(true);
         EncounterValidationResponse validationResponse = validator.validate(encounterBundle);
-        verify(trConceptLocator, times(1)).validate("http://172.18.46.56:9080/openmrs/ws/rest/v1/tr/additional-instructions",
+        verify(trConceptLocator, times(1)).validateCode("http://172.18.46.56:9080/openmrs/ws/rest/v1/tr/additional-instructions",
                 "79647ed4-a60e-4cf5-ba68-cf4d55956xyz", "Take With Water");
         assertTrue("Should Validate Valid Encounter In MedicationPrescription", validationResponse.isSuccessful());
     }
@@ -355,8 +354,8 @@ public class EncounterValidatorIntegrationTest {
                 FileUtil.asString("xmls/encounters/medication_prescription_substitution_type_reason.xml"));
         when(trConceptLocator.verifiesSystem(anyString())).thenReturn(true);
         EncounterValidationResponse validationResponse = validator.validate(encounterBundle);
-        verify(trConceptLocator, times(1)).validate("http://172.18.46.56:9080/openmrs/ws/rest/v1/tr/vs/substitution-type", "291220002", "Paracetamol");
-        verify(trConceptLocator, times(1)).validate("http://172.18.46.56:9080/openmrs/ws/rest/v1/tr/vs/substitution-reason", "301220005"
+        verify(trConceptLocator, times(1)).validateCode("http://172.18.46.56:9080/openmrs/ws/rest/v1/tr/vs/substitution-type", "291220002", "Paracetamol");
+        verify(trConceptLocator, times(1)).validateCode("http://172.18.46.56:9080/openmrs/ws/rest/v1/tr/vs/substitution-reason", "301220005"
                 , "Paracetamol can be taken in place of this drug");
         assertTrue(validationResponse.isSuccessful());
 
@@ -376,9 +375,9 @@ public class EncounterValidatorIntegrationTest {
                 FileUtil.asString("xmls/encounters/medication_prescription_route_valid.xml"));
         when(trConceptLocator.verifiesSystem(anyString())).thenReturn(true);
         EncounterValidationResponse validationResponse = validator.validate(encounterBundle);
-        verify(trConceptLocator, times(1)).validate("http://172.18.46.56:9080/openmrs/ws/rest/v1/tr/concepts/79647ed4-a60e-4cf5-ba68-cf4d55956cba",
+        verify(trConceptLocator, times(1)).validateCode("http://172.18.46.56:9080/openmrs/ws/rest/v1/tr/concepts/79647ed4-a60e-4cf5-ba68-cf4d55956cba",
                 "79647ed4-a60e-4cf5-ba68-cf4d55956cba", "Hemoglobin");
-        verify(trConceptLocator, times(1)).validate("http://localhost:9997/openmrs/ws/rest/v1/tr/vs/administration-method-codes",
+        verify(trConceptLocator, times(1)).validateCode("http://localhost:9997/openmrs/ws/rest/v1/tr/vs/administration-method-codes",
                 "320276009", "Salmeterol+fluticasone 25/250ug inhaler");
         assertTrue(validationResponse.isSuccessful());
 
@@ -402,7 +401,7 @@ public class EncounterValidatorIntegrationTest {
                 FileUtil.asString("xmls/encounters/discharge_summary_encounter.xml"));
         when(trConceptLocator.verifiesSystem(anyString())).thenReturn(true);
         EncounterValidationResponse validationResponse = validator.validate(encounterBundle);
-        verify(trConceptLocator, times(31)).validate(contains("http://172.18.46.56:9080/openmrs/ws/rest/v1/tr"), anyString(), anyString());
+        verify(trConceptLocator, times(31)).validateCode(contains("http://172.18.46.56:9080/openmrs/ws/rest/v1/tr"), anyString(), anyString());
         assertTrue(validationResponse.isSuccessful());
     }
 
@@ -442,8 +441,8 @@ public class EncounterValidatorIntegrationTest {
     @Test
     public void shouldValidateInvalidCodeInDischargeSummaryEncounter() {
         when(trConceptLocator.verifiesSystem(anyString())).thenReturn(true);
-        when(trConceptLocator.validate(anyString(), eq("a6e20fe1-4044-4ce7-8440-577f7f814765-invalid"),
-                anyString())).thenReturn(new ConceptLocator.ValidationResult(OperationOutcome.IssueSeverity.error,
+        when(trConceptLocator.validateCode(anyString(), eq("a6e20fe1-4044-4ce7-8440-577f7f814765-invalid"),
+                anyString())).thenReturn(new ITerminologyServices.ValidationResult(OperationOutcome.IssueSeverity.ERROR,
                 "Invalid code"));
 
         encounterBundle = EncounterBundleData.encounter(EncounterBundleData.HEALTH_ID,

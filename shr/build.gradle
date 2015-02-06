@@ -70,7 +70,7 @@ dependencies {
     compile('com.toddfast.mutagen:mutagen-cassandra:0.4.0') {
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     }
-    compile project(":fhir")
+    compile group: 'me.fhir', name:'fhir-dstu2', version: '0.4.0.3925'
     testCompile testLibraries.mockito, testLibraries.junit, testLibraries.spring_test, testLibraries.cassandra_unit_spring,
             testLibraries.wiremock, testLibraries.hamcrest_core
 }

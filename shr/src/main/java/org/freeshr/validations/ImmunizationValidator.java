@@ -1,8 +1,11 @@
 package org.freeshr.validations;
 
 
-import org.hl7.fhir.instance.model.*;
-import org.hl7.fhir.instance.utils.ConceptLocator;
+import org.hl7.fhir.instance.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.instance.model.OperationOutcome;
+import org.hl7.fhir.instance.model.Property;
+import org.hl7.fhir.instance.model.Quantity;
+import org.hl7.fhir.instance.utils.ITerminologyServices;
 import org.hl7.fhir.instance.validation.ValidationMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +19,7 @@ import static org.freeshr.domain.ErrorMessageBuilder.INVALID_DOSAGE_QUANTITY;
 import static org.freeshr.domain.ErrorMessageBuilder.buildValidationMessage;
 
 @Component
-public class ImmunizationValidator implements Validator<AtomEntry<? extends Resource>> {
+public class ImmunizationValidator implements Validator<BundleEntryComponent> {
 
     private static final Logger logger = LoggerFactory.getLogger(ImmunizationValidator.class);
     public static final String DOSE_QUANTITY = "doseQuantity";
@@ -33,34 +36,31 @@ public class ImmunizationValidator implements Validator<AtomEntry<? extends Reso
     }
 
     @Override
-    public List<ValidationMessage> validate(ValidationSubject<AtomEntry<? extends Resource>> subject) {
+    public List<ValidationMessage> validate(BundleEntryComponent entry) {
+        return validateDosageQuantity(entry);
+    }
 
-        AtomEntry<? extends Resource> atomEntry = subject.extract();
-        ArrayList<ValidationMessage> validationMessages = new ArrayList<>();
+    private List<ValidationMessage> validateDosageQuantity(BundleEntryComponent entry) {
+        List<ValidationMessage> validationMessages = new ArrayList<>();
+        String id = entry.getId();
+        Property property = entry.getResource().getChildByName(DOSE_QUANTITY);
 
-        validateDosageQuantity(atomEntry, validationMessages);
+        if (!property.getName().equals(DOSE_QUANTITY) || !property.hasValues())
+            return validationMessages;
+
+        Quantity doseQuantity = (Quantity) property.getValues().get(0);
+
+        if (!doseQuantityValidator.isReferenceUrlNotFound(doseQuantity) && urlValidator.isValid(doseQuantity.getSystem())) {
+            ITerminologyServices.ValidationResult validationResult = doseQuantityValidator.validate(doseQuantity);
+            if (validationResult != null) {
+                logger.error("Medication-Prescription DosageQuantity Code is invalid:");
+
+                validationMessages.add(buildValidationMessage(id, ResourceValidator.INVALID, INVALID_DOSAGE_QUANTITY, OperationOutcome.IssueSeverity.ERROR));
+            }
+        }
 
         return validationMessages;
     }
 
-    private void validateDosageQuantity(AtomEntry<? extends Resource> atomEntry, ArrayList<ValidationMessage> validationMessages) {
-        String id = atomEntry.getId();
 
-        Property property = atomEntry.getResource().getChildByName(DOSE_QUANTITY);
-
-        if (!property.getName().equals(DOSE_QUANTITY) || !property.hasValues())
-            return;
-
-        Quantity doseQuantity = (Quantity) property.getValues().get(0);
-
-        if (!doseQuantityValidator.isReferenceUrlNotFound(doseQuantity) && urlValidator.isValid(doseQuantity.getSystemSimple())) {
-            ConceptLocator.ValidationResult validationResult = doseQuantityValidator.validate(doseQuantity);
-            if (validationResult != null) {
-                logger.error("Medication-Prescription DosageQuantity Code is invalid:");
-                validationMessages.add(buildValidationMessage(id, ResourceValidator.INVALID, INVALID_DOSAGE_QUANTITY, OperationOutcome.IssueSeverity.error));
-            }
-        }
-    }
-
-
-    }
+}
