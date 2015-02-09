@@ -5,9 +5,9 @@ import org.hl7.fhir.instance.model.Bundle;
 
 import java.io.ByteArrayInputStream;
 
-public class ResourceOrFeedDeserializer {
+public class BundleDeserializer {
 
-    public ResourceOrFeedDeserializer() {
+    public BundleDeserializer() {
     }
 
     public Bundle deserialize(String xml) {

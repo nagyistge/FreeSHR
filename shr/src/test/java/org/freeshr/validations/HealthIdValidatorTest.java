@@ -4,7 +4,7 @@ import org.freeshr.application.fhir.EncounterBundle;
 import org.freeshr.application.fhir.EncounterValidationResponse;
 import org.freeshr.application.fhir.FhirMessageFilter;
 import org.freeshr.utils.FileUtil;
-import org.freeshr.utils.ResourceOrFeedDeserializer;
+import org.freeshr.utils.BundleDeserializer;
 import org.hl7.fhir.instance.validation.ValidationMessage;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,13 +17,13 @@ import static org.junit.Assert.assertThat;
 public class HealthIdValidatorTest {
 
     private HealthIdValidator healthIdValidator;
-    ResourceOrFeedDeserializer resourceOrFeedDeserializer;
+    BundleDeserializer bundleDeserializer;
     FhirMessageFilter fhirMessageFilter;
 
     @Before
     public void setup() {
         healthIdValidator = new HealthIdValidator();
-        resourceOrFeedDeserializer = new ResourceOrFeedDeserializer();
+        bundleDeserializer = new BundleDeserializer();
         fhirMessageFilter = new FhirMessageFilter();
     }
 
@@ -72,7 +72,7 @@ public class HealthIdValidatorTest {
         EncounterBundle encounterBundle = new EncounterBundle();
         encounterBundle.setEncounterContent(xml);
         encounterBundle.setHealthId(healthId);
-        return new EncounterValidationContext(encounterBundle, resourceOrFeedDeserializer);
+        return new EncounterValidationContext(encounterBundle, bundleDeserializer);
     }
 
 }

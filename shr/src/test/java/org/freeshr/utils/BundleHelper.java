@@ -14,7 +14,7 @@ public class BundleHelper {
         EncounterBundle encounterBundle = EncounterBundleData.encounter(EncounterBundleData.HEALTH_ID,
                 FileUtil.asString(feedFile));
         final EncounterValidationContext validationContext = new EncounterValidationContext(encounterBundle,
-                new ResourceOrFeedDeserializer());
+                new BundleDeserializer());
 
         Bundle feed = validationContext.getBundle();
         List<Bundle.BundleEntryComponent> entries = feed.getEntry();

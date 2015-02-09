@@ -1,7 +1,7 @@
 package org.freeshr.application.fhir;
 
 import org.freeshr.utils.FileUtil;
-import org.freeshr.utils.ResourceOrFeedDeserializer;
+import org.freeshr.utils.BundleDeserializer;
 import org.freeshr.validations.*;
 import org.hl7.fhir.instance.model.OperationOutcome;
 import org.hl7.fhir.instance.validation.ValidationMessage;
@@ -18,7 +18,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class ResourceValidatorTest {
 
     private ResourceValidator resourceValidator;
-    ResourceOrFeedDeserializer resourceOrFeedDeserializer;
+    BundleDeserializer bundleDeserializer;
 
     @Mock
     MedicationPrescriptionValidator medicationPrescriptionValidator;
@@ -31,7 +31,7 @@ public class ResourceValidatorTest {
     public void setup() {
         initMocks(this);
         resourceValidator = new ResourceValidator(new ConditionValidator(), medicationPrescriptionValidator, immunizationValidator, procedureValidator);
-        resourceOrFeedDeserializer = new ResourceOrFeedDeserializer();
+        bundleDeserializer = new BundleDeserializer();
     }
 
     @Test
@@ -43,7 +43,7 @@ public class ResourceValidatorTest {
 
 
         final String xml = FileUtil.asString("xmls/encounters/coded_and_noncoded_diagnosis.xml");
-        List<ValidationMessage> messages = resourceValidator.validate(resourceOrFeedDeserializer.deserialize(xml));
+        List<ValidationMessage> messages = resourceValidator.validate(bundleDeserializer.deserialize(xml));
         assertThat(messages.size(), is(3));
         assertThat(messages.get(0).getLevel(), is(OperationOutcome.IssueSeverity.ERROR));
         assertThat(messages.get(0).getMessage(), is("Viral pneumonia 785857"));
@@ -59,7 +59,7 @@ public class ResourceValidatorTest {
     @Test
     public void shouldValidateConditionDiagnosisWithAllValidComponents() {
         final String xml = FileUtil.asString("xmls/encounters/valid_diagnosis.xml");
-        List<ValidationMessage> messages = resourceValidator.validate(resourceOrFeedDeserializer.deserialize(xml));
+        List<ValidationMessage> messages = resourceValidator.validate(bundleDeserializer.deserialize(xml));
 
         assertThat(messages.isEmpty(), is(true));
     }
@@ -67,14 +67,14 @@ public class ResourceValidatorTest {
     @Test
     public void shouldAllowResourceTypeConditionWithCodedAsWellAsNonCodedForAnythingOtherThanDiagnosis() {
         final String xml = FileUtil.asString("xmls/encounters/other_conditions.xml");
-        List<ValidationMessage> messages = resourceValidator.validate(resourceOrFeedDeserializer.deserialize(xml));
+        List<ValidationMessage> messages = resourceValidator.validate(bundleDeserializer.deserialize(xml));
         assertThat(messages.isEmpty(), is(true));
     }
 
     @Test
     public void shouldAcceptDiagnosisIfAtLeaseOneReferenceTermIsRight() {
         final String xml = FileUtil.asString("xmls/encounters/multiple_coded_diagnosis.xml");
-        List<ValidationMessage> messages = resourceValidator.validate(resourceOrFeedDeserializer.deserialize(xml));
+        List<ValidationMessage> messages = resourceValidator.validate(bundleDeserializer.deserialize(xml));
         assertThat(messages.isEmpty(), is(true));
     }
 

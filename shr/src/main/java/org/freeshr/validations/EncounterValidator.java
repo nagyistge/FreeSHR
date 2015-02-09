@@ -4,7 +4,7 @@ package org.freeshr.validations;
 import org.freeshr.application.fhir.EncounterBundle;
 import org.freeshr.application.fhir.EncounterValidationResponse;
 import org.freeshr.application.fhir.FhirMessageFilter;
-import org.freeshr.utils.ResourceOrFeedDeserializer;
+import org.freeshr.utils.BundleDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +14,7 @@ import static org.freeshr.application.fhir.EncounterValidationResponse.fromValid
 @Component
 public class EncounterValidator {
 
-    private final ResourceOrFeedDeserializer resourceOrFeedDeserializer;
+    private final BundleDeserializer bundleDeserializer;
     private FhirMessageFilter fhirMessageFilter;
     private FhirSchemaValidator fhirSchemaValidator;
     private ResourceValidator resourceValidator;
@@ -32,13 +32,13 @@ public class EncounterValidator {
         this.resourceValidator = resourceValidator;
         this.healthIdValidator = healthIdValidator;
         this.structureValidator = structureValidator;
-        this.resourceOrFeedDeserializer = new ResourceOrFeedDeserializer();
+        this.bundleDeserializer = new BundleDeserializer();
     }
 
     public EncounterValidationResponse validate(EncounterBundle encounterBundle) {
         try {
             final EncounterValidationContext validationContext = new EncounterValidationContext(encounterBundle,
-                    resourceOrFeedDeserializer);
+                    bundleDeserializer);
 
             EncounterValidationResponse validationResponse = fromValidationMessages(fhirSchemaValidator.validate(
                     validationContext.sourceFragment()), fhirMessageFilter);
