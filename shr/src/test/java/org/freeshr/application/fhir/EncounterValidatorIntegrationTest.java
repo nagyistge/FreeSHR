@@ -62,7 +62,7 @@ public class EncounterValidatorIntegrationTest {
     @Before
     public void setup() throws Exception {
         initMocks(this);
-//        fhirSchemaValidator = new FhirSchemaValidator(trConceptLocator, shrProperties);
+        fhirSchemaValidator = new FhirSchemaValidator(trConceptLocator, shrProperties);
         validator = new EncounterValidator(fhirMessageFilter, fhirSchemaValidator, resourceValidator,
                 healthIdValidator, structureValidator);
         encounterBundle = EncounterBundleData.withValidEncounter();
@@ -469,5 +469,12 @@ public class EncounterValidatorIntegrationTest {
         assertTrue(validationResponse.isSuccessful());
     }
 
+    @Test
+    public void shouldValidateEncounter() throws Exception {
+        encounterBundle = EncounterBundleData.encounter(EncounterBundleData.HEALTH_ID,
+                FileUtil.asString("xmls/encounters/bundle/registration_encounter.xml"));
+        EncounterValidationResponse validationResponse = validator.validate(encounterBundle);
+        assertTrue(validationResponse.isSuccessful());
 
+    }
 }

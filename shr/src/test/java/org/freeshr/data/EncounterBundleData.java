@@ -21,6 +21,10 @@ public class EncounterBundleData {
         return encounter(healthId, asString("xmls/encounters/encounter_new.xml"));
     }
 
+    public static EncounterBundle withRegEncounter(String healthId){
+        return encounter(healthId, asString("xmls/encounters/encounter_new.xml"));
+    }
+
     public static EncounterBundle withInvalidConcept() {
         return encounter(HEALTH_ID, asString("xmls/encounters/invalid_concept.xml"));
     }
