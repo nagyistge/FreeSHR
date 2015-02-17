@@ -28,6 +28,7 @@ public class CodeValidatorFactoryIntegrationTest {
                 ValueSetCodeValidator);
         assertTrue(factory.getValidator("http://tr.shr.com/openmrs/ws/rest/v1/tr/drugs/ref1") instanceof
                 MedicationCodeValidator);
+        assertTrue(factory.getValidator("http://hl7.org/fhir/vs/doc-codes") instanceof ValueSetCodeValidator);
         assertNull(factory.getValidator("http://tr.shr.com/openmrs/something"));
     }
 }

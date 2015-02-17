@@ -5,9 +5,10 @@
         <lastUpdated value="2015-02-13T16:57:04" />
     </meta>
     <type value="document"/>
-    <entry id="urn:038770f6-2cae-4ac2-ac8b-0dc629170c40">
+    <entry>
         <resource>
             <Composition>
+                <id value="038770f6-2cae-4ac2-ac8b-0dc629170c40"/>
                 <identifier>
                     <value value="urn:038770f6-2cae-4ac2-ac8b-0dc629170c40" />
                 </identifier>
@@ -17,6 +18,20 @@
                     <reference value="http://172.18.46.56:8081/api/v1/patients/5966368405031223297" />
                     <display value="5966368405031223297" />
                 </subject>
+                <type>
+                    <coding>
+                        <system value="http://hl7.org/fhir/v3/vs/doc-codes"/>
+                        <code value="11488-4"/>
+                    </coding>
+                </type>
+                <confidentiality>
+                    <system value="http://hl7.org/fhir/v3/vs/Confidentiality"/>
+                    <code value="L"/>
+                </confidentiality>
+                <author>
+                    <reference value="Organization/f001"/>
+                    <display value="BMC"/>
+                </author>
                 <encounter>
                     <reference value="urn:a51a2c9a-e460-4993-9197-1588576d3036" />
                     <display value="Encounter" />
@@ -30,9 +45,10 @@
             </Composition>
         </resource>
     </entry>
-    <entry id="urn:a51a2c9a-e460-4993-9197-1588576d3036">
+    <entry>
         <resource>
             <Encounter>
+                <id value="a51a2c9a-e460-4993-9197-1588576d3036"/>
                 <identifier>
                     <value value="urn:a51a2c9a-e460-4993-9197-1588576d3036" />
                 </identifier>

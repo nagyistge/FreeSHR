@@ -1,7 +1,7 @@
 package org.freeshr.application.fhir;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.freeshr.config.SHRProperties;
 import org.freeshr.infrastructure.tr.CodeValidator;
 import org.freeshr.infrastructure.tr.CodeValidatorFactory;
 import org.hl7.fhir.instance.model.CodeType;
@@ -9,7 +9,9 @@ import org.hl7.fhir.instance.model.OperationOutcome;
 import org.hl7.fhir.instance.model.ValueSet;
 import org.hl7.fhir.instance.utils.ITerminologyServices;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.AsyncRestTemplate;
 import rx.Observable;
 
 import java.util.List;
@@ -20,16 +22,22 @@ import static org.hl7.fhir.instance.model.ValueSet.ValueSetExpansionContainsComp
 public class TRConceptLocator implements ITerminologyServices {
 
     private final CodeValidatorFactory factory;
+    private AsyncRestTemplate shrRestTemplate;
+    private SHRProperties shrProperties;
+
 
     @Autowired
-    public TRConceptLocator(CodeValidatorFactory factory) {
+    public TRConceptLocator(CodeValidatorFactory factory, AsyncRestTemplate shrRestTemplate, SHRProperties shrProperties) {
         this.factory = factory;
+        this.shrRestTemplate = shrRestTemplate;
+        this.shrProperties = shrProperties;
     }
 
 
     private static Logger logger = Logger.getLogger(TRConceptLocator.class);
 
     @Override
+    @Cacheable(value="shrCache")
     public ValidationResult validateCode(String system, String code, String display) {
         if (getCodeDefinition(system, code) == null) {
             return new ValidationResult(OperationOutcome.IssueSeverity.ERROR, display);
@@ -39,7 +47,7 @@ public class TRConceptLocator implements ITerminologyServices {
 
     @Override
     public boolean supportsSystem(String system) {
-        return StringUtils.contains(system, "openmrs");
+        return factory.getValidator(system) != null;
     }
 
     @Override
@@ -71,7 +79,7 @@ public class TRConceptLocator implements ITerminologyServices {
 
     @Override
     public boolean verifiesSystem(String system) {
-        return StringUtils.contains(system, "openmrs");
+        return factory.getValidator(system) != null;
     }
 
     public Observable<Boolean> isValid(String uri, String code) {

@@ -2,9 +2,6 @@ package org.freeshr.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.concurrent.ConcurrentMapCache;
-import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +13,9 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.AsyncRestTemplate;
 
-import java.util.Arrays;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 @Configuration
 @Import({SHRSecurityConfig.class, SHRCassandraConfig.class,
@@ -61,5 +60,21 @@ public class SHRConfig {
         PropertiesFactoryBean bean = new PropertiesFactoryBean();
         bean.setLocation(new ClassPathResource("/hl7codes.properties"));
         return bean;
+    }
+
+    @Bean(name = "fhirTrMap")
+    public Properties fhirTrMap() throws IOException {
+        InputStream inputStream = this.getClass().getResourceAsStream("/fhir-tr-mapping.properties");
+        Properties properties = new Properties();
+        properties.load(inputStream);
+        populateTRUrls(properties);
+        return properties;
+
+    }
+
+    private void populateTRUrls(Properties properties) {
+        for (Object key : properties.keySet()) {
+            properties.put(key, shrProperties.getTrServerBaseUrl() + properties.get(key));
+        }
     }
 }

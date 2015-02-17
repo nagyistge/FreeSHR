@@ -16,12 +16,14 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.web.client.AsyncRestTemplate;
 
 import java.util.List;
+import java.util.Properties;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.freeshr.domain.ErrorMessageBuilder.INVALID_DISPENSE_MEDICATION_REFERENCE_URL;
@@ -45,7 +47,7 @@ public class EncounterValidatorIntegrationTest {
     ValueSetCodeValidator valueSetCodeValidator;
     EncounterBundle encounterBundle;
     private EncounterValidator validator;
-    @Mock
+    @Autowired
     private TRConceptLocator trConceptLocator;
     @Autowired
     private SHRProperties shrProperties;
@@ -58,11 +60,16 @@ public class EncounterValidatorIntegrationTest {
     @Autowired
     private FhirMessageFilter fhirMessageFilter;
     private FhirSchemaValidator fhirSchemaValidator;
+    @Autowired
+    private AsyncRestTemplate asyncRestTemplate;
+    @Autowired
+    @Qualifier("fhirTrMap")
+    private Properties fhirTrMap;
 
     @Before
     public void setup() throws Exception {
         initMocks(this);
-        fhirSchemaValidator = new FhirSchemaValidator(trConceptLocator, shrProperties);
+        fhirSchemaValidator = new FhirSchemaValidator(trConceptLocator, shrProperties, fhirTrMap, asyncRestTemplate);
         validator = new EncounterValidator(fhirMessageFilter, fhirSchemaValidator, resourceValidator,
                 healthIdValidator, structureValidator);
         encounterBundle = EncounterBundleData.withValidEncounter();
