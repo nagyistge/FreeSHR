@@ -45,7 +45,7 @@ public class FhirSchemaValidator implements Validator<String> {
         this.shrRestTemplate = shrRestTemplate;
         //TODO inject profiles if required
         WorkerContext workerContext = WorkerContext.fromPack(shrProperties.getValidationFilePath());
-        loadValueSets(workerContext, fhirTrMap);
+//        loadValueSets(workerContext, fhirTrMap);
         workerContext.setTerminologyServices(trConceptLocator);
         this.instanceValidator = new InstanceValidator(workerContext);
     }
@@ -107,6 +107,7 @@ public class FhirSchemaValidator implements Validator<String> {
                 String.class));
     }
 
+    //donot remove this unused method.
     private void loadValueSets(WorkerContext workerContext, Properties fhirTrMap) {
         for (Object fhirValueSetUrl : fhirTrMap.keySet()) {
             String trValueSetUrl = (String) fhirTrMap.get(fhirValueSetUrl);

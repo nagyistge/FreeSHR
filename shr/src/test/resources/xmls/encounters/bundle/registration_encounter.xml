@@ -20,7 +20,7 @@
                 </subject>
                 <type>
                     <coding>
-                        <system value="http://hl7.org/fhir/v3/vs/doc-codes"/>
+                        <system value="http://hl7.org/fhir/vs/doc-codes"/>
                         <code value="11488-4"/>
                     </coding>
                 </type>
