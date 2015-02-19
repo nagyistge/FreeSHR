@@ -7,7 +7,7 @@ import org.hl7.fhir.instance.model.Bundle;
 public class EncounterValidationContext {
     private EncounterBundle encounterBundle;
     private BundleDeserializer bundleDeserializer;
-    private Bundle feed;
+    private Bundle bundle;
 
     public EncounterValidationContext(EncounterBundle encounterBundle,
                                       BundleDeserializer bundleDeserializer) {
@@ -17,9 +17,9 @@ public class EncounterValidationContext {
 
     public Bundle getBundle() {
         //deserialize only once
-        if (feed != null) return feed;
-        feed = bundleDeserializer.deserialize(encounterBundle.getContent());
-        return feed;
+        if (bundle != null) return bundle;
+        bundle = bundleDeserializer.deserialize(encounterBundle.getContent());
+        return bundle;
     }
 
     public String getHealthId() {

@@ -85,7 +85,7 @@ public class TRConceptLocator implements ITerminologyServices {
     public Observable<Boolean> isValid(String uri, String code) {
         CodeValidator validator = factory.getValidator(uri);
         if (validator != null) {
-            return validator.isValid(uri, code);
+            return validator.isValid(factory.getSystem(uri), code);
         }
         return Observable.just(false);
     }

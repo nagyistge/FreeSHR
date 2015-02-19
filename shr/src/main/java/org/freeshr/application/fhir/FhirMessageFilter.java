@@ -17,6 +17,12 @@ public class FhirMessageFilter {
         ignoreList = new ArrayList<>();
         ignoreList.add("f:DiagnosticOrder/f:item");
         ignoreList.add("f:DiagnosticReport/f:name");
+        ignoreList.add("f:Composition/f:type"); // should be replaced with our TR valueset.
+
+        //temporary -- to be removed after bug fix
+        ignoreList.add("f:Composition/f:confidentiality"); // should be replaced with our TR valueset.
+        ignoreList.add("f:Encounter/f:type"); // should be replaced with our TR valueset.
+
     }
 
     public EncounterValidationResponse filterMessagesSevereThan(List<ValidationMessage> outputs,

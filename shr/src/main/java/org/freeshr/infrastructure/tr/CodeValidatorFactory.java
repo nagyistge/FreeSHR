@@ -38,14 +38,18 @@ public class CodeValidatorFactory {
 
 
     public CodeValidator getValidator(String url) {
-        String fhirTrMapping = (String) fhirTrMap.get(url);
-        url = fhirTrMapping != null ? fhirTrMapping : url;
+        url = getSystem(url);
         for (String urlKey : codeValidatorMap.keySet()) {
             if (url.contains(urlKey)) {
                 return codeValidatorMap.get(urlKey);
             }
         }
         return null;
+    }
+
+    public String getSystem(String url) {
+        String fhirTrMapping = (String) fhirTrMap.get(url);
+        return fhirTrMapping != null ? fhirTrMapping : url;
     }
 
 }
