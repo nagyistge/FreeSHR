@@ -68,7 +68,6 @@ public class EncounterValidatorIntegrationTest {
 
     @Before
     public void setup() throws Exception {
-        initMocks(this);
         fhirSchemaValidator = new FhirSchemaValidator(trConceptLocator, shrProperties, fhirTrMap, asyncRestTemplate);
         validator = new EncounterValidator(fhirMessageFilter, fhirSchemaValidator, resourceValidator,
                 healthIdValidator, structureValidator);
@@ -104,18 +103,6 @@ public class EncounterValidatorIntegrationTest {
         assertFalse(response.isSuccessful());
         assertEquals(1, response.getErrors().size());
         assertEquals("Unknown", response.getErrors().get(0).getField());
-    }
-
-    @Test
-    public void shouldRejectEncounterWithInvalidConcept() {
-        when(trConceptLocator.verifiesSystem(anyString())).thenReturn(true);
-        when(trConceptLocator.validateCode(anyString(), eq("invalid-eddb01eb-61fc-4f9e-aca5"),
-                anyString())).thenReturn(new ITerminologyServices.ValidationResult(OperationOutcome.IssueSeverity.ERROR,
-                "Invalid code"));
-
-        encounterBundle = EncounterBundleData.encounter(EncounterBundleData.HEALTH_ID,
-                FileUtil.asString("xmls/encounters/invalid_concept.xml"));
-        assertFalse(validator.validate(encounterBundle).isSuccessful());
     }
 
     @Test
@@ -233,10 +220,9 @@ public class EncounterValidatorIntegrationTest {
         encounterBundle.setHealthId("1111222233334444555");
         EncounterValidationResponse response = validator.validate(encounterBundle);
         assertFalse(response.isSuccessful());
-        assertThat(response.getErrors().size(), is(3));
+        assertThat(response.getErrors().size(), is(2));
         assertTrue(response.getErrors().get(0).getReason().contains("Health Id does not match"));
         assertTrue(response.getErrors().get(1).getReason().contains("Health Id does not match"));
-        assertTrue(response.getErrors().get(2).getReason().contains("Health Id does not match"));
     }
 
     @Test

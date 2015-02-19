@@ -72,7 +72,7 @@ dependencies {
     }
     compile group: 'me.fhir', name:'fhir-dstu2', version: '0.4.0.3925'
     testCompile testLibraries.mockito, testLibraries.junit, testLibraries.spring_test, testLibraries.cassandra_unit_spring,
-            testLibraries.wiremock, testLibraries.hamcrest_core
+            testLibraries.wiremock, testLibraries.hamcrest_core, testLibraries.junit_addons
 }
 
 

@@ -26,3 +26,7 @@ nohup.out
 
 #zip files
 *.zip
+
+#temp files
+shr/src/test/resources/input.xml
+output.xml

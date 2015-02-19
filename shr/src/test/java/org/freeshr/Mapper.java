@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -36,7 +37,7 @@ public class Mapper {
         Element bundleEle = document.createElement("Bundle");
         bundleEle.setAttribute("xmlns", "http://hl7.org/fhir");
 
-        Element id = getId(document, feed);
+        Element id = getIdForBundle(document, feed);
         bundleEle.appendChild(id);
 
         Element metaUpdated = getMetaUpdated(document, feed);
@@ -47,6 +48,12 @@ public class Mapper {
         bundleEle.appendChild(createEntry(document, getComposition(document, feed)));
         bundleEle.appendChild(createEntry(document, getEncounter(document, feed)));
 
+        NodeList entries = document.getElementsByTagName("entry");
+
+        for (int i = 2; i < entries.getLength(); i++) {
+            bundleEle.appendChild(createEntry(document, extractElementAndAddId(document, feed, i)));
+        }
+
         document.removeChild(feed);
         document.appendChild(bundleEle);
 
@@ -56,7 +63,7 @@ public class Mapper {
 
 
     private Element getComposition(Document document, Element feed) {
-        Element composition = extractElementAndAddId(document, feed, "Composition", 0);
+        Element composition = extractElementAndAddId(document, feed, 0);
 
         Element author = document.createElement("author");
         author.appendChild(createTagWithValue(document, "reference", "Organization/f001"));
@@ -75,24 +82,24 @@ public class Mapper {
     }
 
     private Element getEncounter(Document document, Element feed) {
-        Element encounter = extractElementAndAddId(document, feed, "Encounter", 1);
+        Element encounter = extractElementAndAddId(document, feed, 1);
         Node subject = encounter.getElementsByTagName("subject").item(0);
-        document.renameNode(subject,subject.getNamespaceURI(),"patient");
+        document.renameNode(subject, subject.getNamespaceURI(), "patient");
 
         Element indication = getNodeAsElement(encounter, "indication", 0);
         encounter.removeChild(indication);
-        
+
         return encounter;
     }
 
-    private Element extractElementAndAddId(Document document, Element feed, String resourceTag, int resourceIndex) {
+    private Element extractElementAndAddId(Document document, Element feed, int resourceIndex) {
         Element entry = getNodeAsElement(feed, "entry", resourceIndex);
-        Element resource = getNodeAsElement(entry, resourceTag, 0);
-        Element identifier = getNodeAsElement(resource, "identifier", 0);
-        Element identifierValue = getNodeAsElement(identifier, "value", 0);
+        Element resource = getContent(entry);
+        Element id = getNodeAsElement(entry, "id", 0);
 
-        String valueForId = StringUtils.substringAfterLast(identifierValue.getAttribute("value"), ":");
-        resource.insertBefore(createTagWithValue(document, "id", valueForId), identifier);
+        Element identifier = getNodeAsElement(resource, "identifier", 0);
+
+        resource.insertBefore(createTagWithValue(document, "id", id.getTextContent()), identifier);
         return resource;
     }
 
@@ -112,6 +119,11 @@ public class Mapper {
     private Element getNodeAsElement(Element parentElement, String childName, int index) {
         return (Element) parentElement.getElementsByTagName(childName).item(index);
     }
+    
+    private Element getContent(Element entry){
+        return (Element) entry.getElementsByTagName("content").item(0).getChildNodes().item(1);
+        
+    }
 
     private Element getMetaUpdated(Document document, Element feed) {
         Node updated = feed.getElementsByTagName("updated").item(0);
@@ -120,7 +132,7 @@ public class Mapper {
         return meta;
     }
 
-    private Element getId(Document document, Element feed) {
+    private Element getIdForBundle(Document document, Element feed) {
         Node id = feed.getElementsByTagName("id").item(0);
         return createTagWithValue(document, "id", StringUtils.substringAfterLast(id.getTextContent(), "/"));
     }

@@ -1,8 +1,9 @@
 package org.freeshr.domain.service;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import org.freeshr.application.fhir.EncounterBundle;
-import org.freeshr.application.fhir.EncounterResponse;
+import junitx.framework.ListAssert;
+import org.freeshr.application.fhir.*;
+import org.freeshr.application.fhir.Error;
 import org.freeshr.config.SHRConfig;
 import org.freeshr.config.SHREnvironmentMock;
 import org.freeshr.config.SHRProperties;
@@ -125,9 +126,8 @@ public class EncounterServiceIntegrationTest {
         String securityToken = UUID.randomUUID().toString();
         EncounterResponse response = encounterService.ensureCreated(withInvalidConcept(), securityToken).toBlocking()
                 .first();
-        assertTrue(new ValidationFailures(response).matches(new
-                String[]{"/f:entry/f:content/f:Condition/f:Condition/f:code/f:coding", "code-unknown",
-                "Viral pneumonia 314247"}));
+        ListAssert.assertContains(response.getErrors(), new Error("/f:Condition/f:code/f:coding", "code-unknown",
+                "Viral pneumonia 314247"));
     }
 
     @Test
