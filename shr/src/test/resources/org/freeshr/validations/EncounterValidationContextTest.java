@@ -4,7 +4,7 @@ import org.freeshr.application.fhir.EncounterBundle;
 import org.freeshr.data.EncounterBundleData;
 import org.freeshr.utils.FileUtil;
 import org.freeshr.utils.BundleDeserializer;
-import org.hl7.fhir.instance.model.AtomFeed;
+import org.hl7.fhir.instance.model.Bundle;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -26,7 +26,7 @@ public class EncounterValidationContextTest {
         String content = FileUtil.asString("xmls/encounters/encounter_with_obs_valid.xml");
         EncounterBundle encounterBundle = EncounterBundleData.encounter(EncounterBundleData.HEALTH_ID, content);
 
-        when(bundleDeserializer.deserialize(content)).thenReturn(new AtomFeed());
+        when(bundleDeserializer.deserialize(content)).thenReturn(new Bundle());
 
         EncounterValidationContext validationContext = new EncounterValidationContext(encounterBundle,
                 bundleDeserializer);

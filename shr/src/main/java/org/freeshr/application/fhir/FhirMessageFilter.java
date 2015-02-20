@@ -13,16 +13,14 @@ public class FhirMessageFilter {
 
     private ArrayList<String> ignoreList;
 
+    //temporary -- to be removed after bug fix
+    private final String IGNORE_MESSAGE = "Unable to expand value set";
+
     public FhirMessageFilter() {
         ignoreList = new ArrayList<>();
         ignoreList.add("f:DiagnosticOrder/f:item");
         ignoreList.add("f:DiagnosticReport/f:name");
         ignoreList.add("f:Composition/f:type"); // should be replaced with our TR valueset.
-
-        //temporary -- to be removed after bug fix
-        ignoreList.add("f:Composition/f:confidentiality"); // should be replaced with our TR valueset.
-        ignoreList.add("f:Encounter/f:type"); // should be replaced with our TR valueset.
-
     }
 
     public EncounterValidationResponse filterMessagesSevereThan(List<ValidationMessage> outputs,
@@ -60,6 +58,8 @@ public class FhirMessageFilter {
     private boolean shouldFilterMessagesOfType(ValidationMessage input) {
         if (input.getLevel().equals(OperationOutcome.IssueSeverity.ERROR))
             return false;
+        if (input.getMessage().startsWith(IGNORE_MESSAGE))
+            return true;
         if (input.getType().equalsIgnoreCase("code-unknown")) {
             for (String ignoreString : ignoreList) {
                 if (input.getLocation().contains(ignoreString)) {

@@ -118,7 +118,7 @@ public class EncounterServiceIntegrationTest {
         EncounterResponse response = encounterService.ensureCreated(withInvalidReferenceTerm(), securityToken)
                 .toBlocking().first();
         assertTrue(new ValidationFailures(response).matches(new
-                String[]{"/f:entry/f:content/f:Condition/f:Condition/f:code/f:coding", "code-unknown", null}));
+                String[]{"/f:Condition/f:code/f:coding", "code-unknown", null}));
     }
 
     @Test
