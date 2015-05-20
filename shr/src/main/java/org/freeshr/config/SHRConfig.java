@@ -15,7 +15,8 @@ import org.springframework.web.client.AsyncRestTemplate;
 
 @Configuration
 @Import({SHRSecurityConfig.class, SHRCassandraConfig.class,
-        SHRCacheConfiguration.class, ActuatorConfig.class})
+        SHRCacheConfiguration.class, ActuatorConfig.class,
+        SpringFoxConfiguration.class})
 @ComponentScan(basePackages = {"org.freeshr.config",
         "org.freeshr.infrastructure",
         "org.freeshr.interfaces",

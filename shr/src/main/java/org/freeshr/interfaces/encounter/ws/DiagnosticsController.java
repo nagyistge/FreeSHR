@@ -11,12 +11,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import java.lang.management.ThreadInfo;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController()
 @RequestMapping("/diagnostics")
@@ -25,6 +24,14 @@ public class DiagnosticsController {
     private Environment environment;
     @Autowired
     private TraceRepository traceRepository;
+    @Autowired
+    private RequestMappingHandlerMapping requestMappingHandlerMapping;
+
+    @RequestMapping( value = "endPoints", method = RequestMethod.GET )
+    public Set<RequestMappingInfo> getEndPointsInView()
+    {
+        return requestMappingHandlerMapping.getHandlerMethods().keySet();
+    }
 
     @RequestMapping(value = "/health", method = RequestMethod.GET)
     public Health health() {

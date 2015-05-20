@@ -41,23 +41,24 @@ public class SHRSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
-                .csrf().disable()
-                .anonymous().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http
-                .requestMatcher(new AndRequestMatcher(new ArrayList<RequestMatcher>() {
-                    {
-                        add(new NegatedRequestMatcher(new AntPathRequestMatcher(SHRProperties.DIAGNOSTICS_SERVLET_PATH)));
-                        add(new AntPathRequestMatcher("/**"));
-                    }
-                }))
-                .authorizeRequests()
-                .anyRequest()
-                .authenticated()
-                .and()
-                .addFilterBefore(new TokenAuthenticationFilter(authenticationManager()), LogoutFilter.class)
-                .exceptionHandling().accessDeniedHandler(unauthorizedEntryPoint()).authenticationEntryPoint(unauthenticatedEntryPoint());
+//        http
+//                .csrf().disable()
+//                .anonymous().disable()
+//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+//        http
+//                .requestMatcher(new AndRequestMatcher(new ArrayList<RequestMatcher>() {
+//                    {
+//                        add(new NegatedRequestMatcher(new AntPathRequestMatcher("/diagnostics/**")));
+//                        add(new NegatedRequestMatcher(new AntPathRequestMatcher("/springfox/**")));
+//                        add(new AntPathRequestMatcher("/**"));
+//                    }
+//                }))
+//                .authorizeRequests()
+//                .anyRequest()
+//                .authenticated()
+//                .and()
+//                .addFilterBefore(new TokenAuthenticationFilter(authenticationManager()), LogoutFilter.class)
+//                .exceptionHandling().accessDeniedHandler(unauthorizedEntryPoint()).authenticationEntryPoint(unauthenticatedEntryPoint());
     }
 
     @Bean
