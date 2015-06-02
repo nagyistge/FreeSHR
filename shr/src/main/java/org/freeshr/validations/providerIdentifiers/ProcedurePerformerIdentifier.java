@@ -22,7 +22,7 @@ public class ProcedurePerformerIdentifier extends ClinicalResourceProviderIdenti
         List<Procedure.ProcedurePerformerComponent> performers = ((Procedure) resource).getPerformer();
         String url = null;
         if (!CollectionUtils.isEmpty(performers)) {
-            url = performers.get(0).getPerson().getReferenceSimple();
+            url = performers.get(0).getPerson().getReference();
             url = url == null ? StringUtils.EMPTY : url;
         }
         return url == null ? null : Arrays.asList(url);

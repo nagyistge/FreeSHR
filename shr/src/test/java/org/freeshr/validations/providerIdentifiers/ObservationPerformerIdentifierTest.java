@@ -1,15 +1,12 @@
 package org.freeshr.validations.providerIdentifiers;
 
-import org.freeshr.utils.AtomFeedHelper;
-import org.freeshr.validations.ValidationSubject;
-import org.hl7.fhir.instance.model.AtomEntry;
-import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
 
+import static org.freeshr.utils.BundleHelper.getResource;
 import static org.junit.Assert.*;
 
 public class ObservationPerformerIdentifierTest {
@@ -39,11 +36,6 @@ public class ObservationPerformerIdentifierTest {
     public void shouldNotValidateResourceOfOtherType() {
         assertFalse(observationPerformerIdentifier.validates(getResource
                 ("xmls/encounters/providers_identifiers/encounter_with_valid_participant.xml", ResourceType.Encounter)));
-    }
-
-    private Resource getResource(String file, ResourceType resType) {
-        ValidationSubject<AtomEntry<? extends Resource>> validationSubject = AtomFeedHelper.getAtomFeed(file, resType);
-        return validationSubject.extract().getResource();
     }
 
 }

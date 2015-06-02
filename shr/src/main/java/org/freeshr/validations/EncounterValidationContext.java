@@ -1,56 +1,36 @@
 package org.freeshr.validations;
 
 import org.freeshr.application.fhir.EncounterBundle;
-import org.freeshr.utils.ResourceOrFeedDeserializer;
-import org.hl7.fhir.instance.model.AtomFeed;
+import org.freeshr.utils.BundleDeserializer;
+import org.hl7.fhir.instance.model.Bundle;
 
 public class EncounterValidationContext {
     private EncounterBundle encounterBundle;
-    private ResourceOrFeedDeserializer resourceOrFeedDeserializer;
-    private AtomFeed feed;
+    private BundleDeserializer bundleDeserializer;
+    private Bundle bundle;
 
     public EncounterValidationContext(EncounterBundle encounterBundle,
-                                      ResourceOrFeedDeserializer resourceOrFeedDeserializer) {
+                                      BundleDeserializer bundleDeserializer) {
         this.encounterBundle = encounterBundle;
-        this.resourceOrFeedDeserializer = resourceOrFeedDeserializer;
+        this.bundleDeserializer = bundleDeserializer;
     }
 
-    public AtomFeed getFeed() {
+    public Bundle getBundle() {
         //deserialize only once
-        if (feed != null) return feed;
-        feed = resourceOrFeedDeserializer.deserialize(encounterBundle.getContent());
-        return feed;
+        if (bundle != null) return bundle;
+        bundle = bundleDeserializer.deserialize(encounterBundle.getContent());
+        return bundle;
     }
 
     public String getHealthId() {
         return this.encounterBundle.getHealthId();
     }
 
-
-    public ValidationSubject<AtomFeed> feedFragment() {
-        return new ValidationSubject<AtomFeed>() {
-            @Override
-            public AtomFeed extract() {
-                return getFeed();
-            }
-        };
+    public EncounterValidationContext context() {
+        return this;
     }
 
-    public ValidationSubject<EncounterValidationContext> context() {
-        return new ValidationSubject<EncounterValidationContext>() {
-            @Override
-            public EncounterValidationContext extract() {
-                return EncounterValidationContext.this;
-            }
-        };
-    }
-
-    public ValidationSubject<String> sourceFragment() {
-        return new ValidationSubject<String>() {
-            @Override
-            public String extract() {
-                return encounterBundle.getContent();
-            }
-        };
+    public String sourceFragment() {
+        return encounterBundle.getContent();
     }
 }

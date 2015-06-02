@@ -4,6 +4,7 @@ import org.freeshr.config.SHRProperties;
 import org.freeshr.domain.model.Facility;
 import org.freeshr.domain.service.FacilityService;
 import org.hl7.fhir.instance.model.*;
+import org.hl7.fhir.instance.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.instance.validation.ValidationMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,7 @@ import java.util.List;
 import static org.hl7.fhir.instance.model.OperationOutcome.IssueSeverity;
 
 @Component
-public class FacilityValidator implements Validator<AtomFeed> {
+public class FacilityValidator implements Validator<Bundle> {
 
     public static final String INVALID_SERVICE_PROVIDER = "Invalid Service Provider";
     public static final String INVALID_SERVICE_PROVIDER_URL = "Invalid Service Provider URL";
@@ -34,19 +35,18 @@ public class FacilityValidator implements Validator<AtomFeed> {
     }
 
     @Override
-    public List<ValidationMessage> validate(ValidationSubject<AtomFeed> subject) {
-        AtomFeed feed = subject.extract();
+    public List<ValidationMessage> validate(Bundle bundle) {
         List<ValidationMessage> validationMessages = new ArrayList<>();
-        AtomEntry encounterEntry = identifyEncounterEntry(feed);
-        ResourceReference serviceProvider = getServiceProviderRef(encounterEntry);
+        BundleEntryComponent encounterEntry = identifyEncounterEntry(bundle);
+        Reference serviceProvider = getServiceProviderRef(encounterEntry);
         if (serviceProvider == null) {
             logger.debug("Validating encounter as facility is not provided");
             return validationMessages;
         }
-        String facilityUrl = serviceProvider.getReferenceSimple();
+        String facilityUrl = serviceProvider.getReference();
         if (facilityUrl.isEmpty() || !isValidFacilityUrl(facilityUrl)) {
             validationMessages.add(buildValidationMessage(ResourceValidator.INVALID, encounterEntry.getId(),
-                    INVALID_SERVICE_PROVIDER_URL, IssueSeverity.error));
+                    INVALID_SERVICE_PROVIDER_URL, IssueSeverity.ERROR));
             logger.debug("Encounter failed for invalid facility URL");
             return validationMessages;
         }
@@ -54,7 +54,7 @@ public class FacilityValidator implements Validator<AtomFeed> {
         Facility facility = checkForFacility(facilityUrl).toBlocking().first();
         if (facility == null) {
             validationMessages.add(buildValidationMessage(ResourceValidator.INVALID, encounterEntry.getId(), INVALID_SERVICE_PROVIDER,
-                    IssueSeverity.error));
+                    IssueSeverity.ERROR));
             return validationMessages;
         }
 
@@ -62,15 +62,15 @@ public class FacilityValidator implements Validator<AtomFeed> {
         return validationMessages;
     }
 
-    private ResourceReference getServiceProviderRef(AtomEntry encounterEntry) {
+    private Reference getServiceProviderRef(BundleEntryComponent encounterEntry) {
         return (encounterEntry != null) ? ((Encounter) encounterEntry.getResource()).getServiceProvider() : null;
     }
 
-    private AtomEntry<? extends Resource> identifyEncounterEntry(AtomFeed feed) {
-        for (AtomEntry<? extends Resource> atomEntry : feed.getEntryList()) {
-            Resource resource = atomEntry.getResource();
+    private BundleEntryComponent identifyEncounterEntry(Bundle bundle) {
+        for (BundleEntryComponent bundleEntry : bundle.getEntry()) {
+            Resource resource = bundleEntry.getResource();
             if (resource instanceof Encounter) {
-                return atomEntry;
+                return bundleEntry;
             }
         }
         return null;

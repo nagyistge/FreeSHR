@@ -3,7 +3,7 @@ package org.freeshr.validations.providerIdentifiers;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.instance.model.DiagnosticOrder;
 import org.hl7.fhir.instance.model.Resource;
-import org.hl7.fhir.instance.model.ResourceReference;
+import org.hl7.fhir.instance.model.Reference;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -19,10 +19,10 @@ public class DiagnosticOrdererIdentifier extends ClinicalResourceProviderIdentif
 
     @Override
     protected List<String> extractUrls(Resource resource) {
-        ResourceReference orderer = ((DiagnosticOrder) resource).getOrderer();
+        Reference orderer = ((DiagnosticOrder) resource).getOrderer();
         String url = null;
         if (orderer != null) {
-            url = orderer.getReferenceSimple() == null ? StringUtils.EMPTY : orderer.getReferenceSimple();
+            url = orderer.getReference() == null ? StringUtils.EMPTY : orderer.getReference();
         }
         return url == null ? null : Arrays.asList(url);
     }

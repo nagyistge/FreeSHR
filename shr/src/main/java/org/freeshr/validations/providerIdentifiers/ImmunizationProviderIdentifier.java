@@ -3,7 +3,7 @@ package org.freeshr.validations.providerIdentifiers;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.instance.model.Immunization;
 import org.hl7.fhir.instance.model.Resource;
-import org.hl7.fhir.instance.model.ResourceReference;
+import org.hl7.fhir.instance.model.Reference;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -21,16 +21,16 @@ public class ImmunizationProviderIdentifier extends ClinicalResourceProviderIden
     protected List<String> extractUrls(Resource resource) {
         List<String> urls = new ArrayList<>();
 
-        ResourceReference requester = ((Immunization) resource).getRequester();
+        Reference requester = ((Immunization) resource).getRequester();
         String requesterUrl = null;
         if (requester != null) {
-            requesterUrl = requester.getReferenceSimple() == null ? StringUtils.EMPTY : requester.getReferenceSimple();
+            requesterUrl = requester.getReference() == null ? StringUtils.EMPTY : requester.getReference();
         }
 
-        ResourceReference performer = ((Immunization) resource).getPerformer();
+        Reference performer = ((Immunization) resource).getPerformer();
         String performerUrl = null;
         if (performer != null) {
-            performerUrl = performer.getReferenceSimple() == null ? StringUtils.EMPTY : performer.getReferenceSimple();
+            performerUrl = performer.getReference() == null ? StringUtils.EMPTY : performer.getReference();
         }
 
         if (requesterUrl != null) {

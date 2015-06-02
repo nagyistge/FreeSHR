@@ -3,7 +3,7 @@ package org.freeshr.validations.providerIdentifiers;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.instance.model.MedicationPrescription;
 import org.hl7.fhir.instance.model.Resource;
-import org.hl7.fhir.instance.model.ResourceReference;
+import org.hl7.fhir.instance.model.Reference;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -19,10 +19,10 @@ public class MedicationPrescriberIdentifier extends ClinicalResourceProviderIden
 
     @Override
     protected List<String> extractUrls(Resource resource) {
-        ResourceReference prescriber = ((MedicationPrescription) resource).getPrescriber();
+        Reference prescriber = ((MedicationPrescription) resource).getPrescriber();
         String url = null;
         if (prescriber != null) {
-            url = prescriber.getReferenceSimple() == null ? StringUtils.EMPTY : prescriber.getReferenceSimple();
+            url = prescriber.getReference() == null ? StringUtils.EMPTY : prescriber.getReference();
         }
         return url == null ? null : Arrays.asList(url);
     }

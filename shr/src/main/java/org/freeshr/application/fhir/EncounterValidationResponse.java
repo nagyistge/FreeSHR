@@ -1,6 +1,6 @@
 package org.freeshr.application.fhir;
 
-import org.hl7.fhir.instance.model.AtomFeed;
+import org.hl7.fhir.instance.model.Bundle;
 import org.hl7.fhir.instance.model.OperationOutcome;
 import org.hl7.fhir.instance.validation.ValidationMessage;
 
@@ -11,7 +11,7 @@ public class EncounterValidationResponse {
 
     private List<Error> errors = new ArrayList<>();
     private String encounterId;
-    private AtomFeed feed;
+    private Bundle bundle;
 
     public void addError(Error error) {
         errors.add(error);
@@ -40,7 +40,7 @@ public class EncounterValidationResponse {
     public static EncounterValidationResponse fromValidationMessages(List<ValidationMessage> validationMessages,
                                                                      FhirMessageFilter filter) {
         return filter.filterMessagesSevereThan(validationMessages,
-                OperationOutcome.IssueSeverity.warning);
+                OperationOutcome.IssueSeverity.WARNING);
     }
 
 
@@ -64,11 +64,11 @@ public class EncounterValidationResponse {
         }
     }
 
-    public void setFeed(AtomFeed feed) {
-        this.feed = feed;
+    public void setBundle(Bundle bundle) {
+        this.bundle = bundle;
     }
 
-    public AtomFeed getFeed() {
-        return feed;
+    public Bundle getBundle() {
+        return bundle;
     }
 }

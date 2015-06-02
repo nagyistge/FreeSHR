@@ -1,9 +1,8 @@
 package org.freeshr.application.fhir;
 
 import org.freeshr.utils.FileUtil;
-import org.freeshr.utils.ResourceOrFeedDeserializer;
+import org.freeshr.utils.BundleDeserializer;
 import org.freeshr.validations.*;
-import org.hl7.fhir.instance.model.AtomFeed;
 import org.hl7.fhir.instance.model.OperationOutcome;
 import org.hl7.fhir.instance.validation.ValidationMessage;
 import org.junit.Before;
@@ -19,7 +18,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class ResourceValidatorTest {
 
     private ResourceValidator resourceValidator;
-    ResourceOrFeedDeserializer resourceOrFeedDeserializer;
+    BundleDeserializer bundleDeserializer;
 
     @Mock
     MedicationPrescriptionValidator medicationPrescriptionValidator;
@@ -33,7 +32,7 @@ public class ResourceValidatorTest {
         initMocks(this);
         resourceValidator = new ResourceValidator(new ConditionValidator(), medicationPrescriptionValidator, immunizationValidator,
                 procedureValidator);
-        resourceOrFeedDeserializer = new ResourceOrFeedDeserializer();
+        bundleDeserializer = new BundleDeserializer();
     }
 
     @Test
@@ -45,20 +44,15 @@ public class ResourceValidatorTest {
 
 
         final String xml = FileUtil.asString("xmls/encounters/coded_and_noncoded_diagnosis.xml");
-        List<ValidationMessage> messages = resourceValidator.validate(new ValidationSubject<AtomFeed>() {
-            @Override
-            public AtomFeed extract() {
-                return resourceOrFeedDeserializer.deserialize(xml);
-            }
-        });
+        List<ValidationMessage> messages = resourceValidator.validate(bundleDeserializer.deserialize(xml));
         assertThat(messages.size(), is(3));
-        assertThat(messages.get(0).getLevel(), is(OperationOutcome.IssueSeverity.error));
+        assertThat(messages.get(0).getLevel(), is(OperationOutcome.IssueSeverity.ERROR));
         assertThat(messages.get(0).getMessage(), is("Viral pneumonia 785857"));
         assertThat(messages.get(0).getType(), is(ResourceValidator.CODE_UNKNOWN));
-        assertThat(messages.get(1).getLevel(), is(OperationOutcome.IssueSeverity.error));
+        assertThat(messages.get(1).getLevel(), is(OperationOutcome.IssueSeverity.ERROR));
         assertThat(messages.get(1).getMessage(), is("Viral pneumonia 785857"));
         assertThat(messages.get(1).getType(), is(ResourceValidator.CODE_UNKNOWN));
-        assertThat(messages.get(2).getLevel(), is(OperationOutcome.IssueSeverity.error));
+        assertThat(messages.get(2).getLevel(), is(OperationOutcome.IssueSeverity.ERROR));
         assertThat(messages.get(2).getMessage(), is("Moderate"));
         assertThat(messages.get(2).getType(), is(ResourceValidator.CODE_UNKNOWN));
     }
@@ -66,12 +60,7 @@ public class ResourceValidatorTest {
     @Test
     public void shouldValidateConditionDiagnosisWithAllValidComponents() {
         final String xml = FileUtil.asString("xmls/encounters/valid_diagnosis.xml");
-        List<ValidationMessage> messages = resourceValidator.validate(new ValidationSubject<AtomFeed>() {
-            @Override
-            public AtomFeed extract() {
-                return resourceOrFeedDeserializer.deserialize(xml);
-            }
-        });
+        List<ValidationMessage> messages = resourceValidator.validate(bundleDeserializer.deserialize(xml));
 
         assertThat(messages.isEmpty(), is(true));
     }
@@ -79,24 +68,14 @@ public class ResourceValidatorTest {
     @Test
     public void shouldAllowResourceTypeConditionWithCodedAsWellAsNonCodedForAnythingOtherThanDiagnosis() {
         final String xml = FileUtil.asString("xmls/encounters/other_conditions.xml");
-        List<ValidationMessage> messages = resourceValidator.validate(new ValidationSubject<AtomFeed>() {
-            @Override
-            public AtomFeed extract() {
-                return resourceOrFeedDeserializer.deserialize(xml);
-            }
-        });
+        List<ValidationMessage> messages = resourceValidator.validate(bundleDeserializer.deserialize(xml));
         assertThat(messages.isEmpty(), is(true));
     }
 
     @Test
     public void shouldAcceptDiagnosisIfAtLeaseOneReferenceTermIsRight() {
         final String xml = FileUtil.asString("xmls/encounters/multiple_coded_diagnosis.xml");
-        List<ValidationMessage> messages = resourceValidator.validate(new ValidationSubject<AtomFeed>() {
-            @Override
-            public AtomFeed extract() {
-                return resourceOrFeedDeserializer.deserialize(xml);
-            }
-        });
+        List<ValidationMessage> messages = resourceValidator.validate(bundleDeserializer.deserialize(xml));
         assertThat(messages.isEmpty(), is(true));
     }
 

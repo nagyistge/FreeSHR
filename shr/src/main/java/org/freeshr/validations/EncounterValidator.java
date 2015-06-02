@@ -44,25 +44,25 @@ public class EncounterValidator {
             if (validationResponse.isNotSuccessful()) return validationResponse;
 
             validationResponse = fromValidationMessages(
-                    structureValidator.validate(validationContext.feedFragment()), fhirMessageFilter);
+                    structureValidator.validate(validationContext.getBundle()), fhirMessageFilter);
             if (validationResponse.isNotSuccessful()) return validationResponse;
 
             validationResponse.mergeErrors(fromValidationMessages(
                     healthIdValidator.validate(validationContext.context()), fhirMessageFilter));
 
             validationResponse.mergeErrors(fromValidationMessages(
-                    facilityValidator.validate(validationContext.feedFragment()), fhirMessageFilter));
+                    facilityValidator.validate(validationContext.getBundle()), fhirMessageFilter));
             //if (validationResponse.isNotSuccessful()) return validationResponse;
 
             validationResponse.mergeErrors(fromValidationMessages(
-                    providerValidator.validate(validationContext.feedFragment()), fhirMessageFilter));
+                    providerValidator.validate(validationContext.getBundle()), fhirMessageFilter));
             //if (validationResponse.isNotSuccessful()) return validationResponse;
 
             validationResponse.mergeErrors(fromValidationMessages(
-                    resourceValidator.validate(validationContext.feedFragment()), fhirMessageFilter));
+                    resourceValidator.validate(validationContext.getBundle()), fhirMessageFilter));
 
             if(validationResponse.isSuccessful()) {
-                validationResponse.setFeed(validationContext.getFeed());
+                validationResponse.setBundle(validationContext.getBundle());
             }
             return validationResponse;
         } catch (Exception e) {

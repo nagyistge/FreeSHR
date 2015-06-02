@@ -4,6 +4,7 @@ package org.freeshr.validations;
 import org.freeshr.config.SHRProperties;
 import org.freeshr.utils.StringUtils;
 import org.hl7.fhir.instance.model.*;
+import org.hl7.fhir.instance.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.instance.validation.ValidationMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,39 +33,42 @@ public class HealthIdValidator implements Validator<EncounterValidationContext> 
     }
 
     @Override
-    public List<ValidationMessage> validate(ValidationSubject<EncounterValidationContext> validationSubject) {
-        EncounterValidationContext validationContext = validationSubject.extract();
-        AtomFeed feed = validationContext.getFeed();
+    public List<ValidationMessage> validate(EncounterValidationContext validationContext) {
+        Bundle bundle = validationContext.getBundle();
         String expectedHealthId = validationContext.getHealthId();
         List<ValidationMessage> validationMessages = new ArrayList<>();
-        for (AtomEntry<? extends Resource> atomEntry : feed.getEntryList()) {
+        for (BundleEntryComponent atomEntry : bundle.getEntry()) {
             Resource resource = atomEntry.getResource();
             ResourceType resourceType = resource.getResourceType();
-            Property subject = resource.getChildByName("subject");
+            Property patientReference = getPatientReference(resource);
 
-            if (subject == null) {
-                subject = resource.getChildByName("patient");
-            }
-
-            boolean subjectHasValue = hasValue(subject);
-            if (resourceType.equals(ResourceType.Composition) && !subjectHasValue) {
+            boolean isPatientReferencePresent = hasValue(patientReference);
+            if (resourceType.equals(ResourceType.Composition) && !isPatientReferencePresent) {
                 logger.debug(String.format("Encounter failed for %s", HEALTH_ID_NOT_PRESENT_IN_COMPOSITION));
                 validationMessages.add(new ValidationMessage(ValidationMessage.Source.ProfileValidator, "invalid", "healthId",
-                        HEALTH_ID_NOT_PRESENT_IN_COMPOSITION, OperationOutcome.IssueSeverity.error));
+                        HEALTH_ID_NOT_PRESENT_IN_COMPOSITION, OperationOutcome.IssueSeverity.ERROR));
                 return validationMessages;
             }
 
-            if (!subjectHasValue) continue;
+            if (!isPatientReferencePresent) continue;
 
-            ResourceReference subjectRef = (ResourceReference) subject.getValues().get(0);
-            String healthIdFromUrl = validateAndIdentifyPatientId(subjectRef.getReferenceSimple(), expectedHealthId);
+            Reference subjectRef = (Reference) patientReference.getValues().get(0);
+            String healthIdFromUrl = validateAndIdentifyPatientId(subjectRef.getReference(), expectedHealthId);
             if (healthIdFromUrl == null) {
                 logger.debug(String.format("Encounter failed for %s", HEALTH_ID_NOT_MATCH));
                 validationMessages.add(new ValidationMessage(ValidationMessage.Source.ProfileValidator, "invalid", atomEntry.getId(),
-                        HEALTH_ID_NOT_MATCH, OperationOutcome.IssueSeverity.error));
+                        HEALTH_ID_NOT_MATCH, OperationOutcome.IssueSeverity.ERROR));
             }
         }
         return validationMessages;
+    }
+
+    private Property getPatientReference(Resource resource) {
+        Property patientReference = resource.getChildByName("patient");
+        if (patientReference == null) {
+            patientReference = resource.getChildByName("subject");
+        }
+        return patientReference;
     }
 
     private String validateAndIdentifyPatientId(String patientUrl, String healthId) {
@@ -78,8 +82,8 @@ public class HealthIdValidator implements Validator<EncounterValidationContext> 
         return null;
     }
 
-    private boolean hasValue(Property subject) {
-        return (subject != null) && subject.hasValues();
+    private boolean hasValue(Property property) {
+        return (property != null) && property.hasValues();
 
     }
 

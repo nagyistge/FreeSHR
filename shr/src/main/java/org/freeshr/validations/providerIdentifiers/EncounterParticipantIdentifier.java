@@ -22,7 +22,7 @@ public class EncounterParticipantIdentifier extends ClinicalResourceProviderIden
         List<Encounter.EncounterParticipantComponent> participants = ((Encounter) resource).getParticipant();
         String url = null;
         if (!CollectionUtils.isEmpty(participants)) {
-            url = participants.get(0).getIndividual().getReferenceSimple();
+            url = participants.get(0).getIndividual().getReference();
             url = url == null ? StringUtils.EMPTY : url;
         }
         return url == null ? null : Arrays.asList(url);

@@ -49,13 +49,13 @@ public class ValueSetCodeValidator implements CodeValidator {
                             "UTF-8"));
                     ValueSet valueSet = (ValueSet) resource;
                     ValueSet.ValueSetDefineComponent definition = valueSet.getDefine();
-                    Boolean isCaseSensitive = definition.getCaseSensitive().getValue();
+                    Boolean isCaseSensitive = definition.getCaseSensitive();
 
                     ConceptMatcher conceptMatcher = getConceptMatcher(isCaseSensitive);
 
-                    List<ValueSet.ValueSetDefineConceptComponent> concepts = definition.getConcept();
-                    for (ValueSet.ValueSetDefineConceptComponent concept : concepts) {
-                        if (conceptMatcher.isMatching(concept.getCode().getValue(), code)) {
+                    List<ValueSet.ConceptDefinitionComponent> concepts = definition.getConcept();
+                    for (ValueSet.ConceptDefinitionComponent concept : concepts) {
+                        if (conceptMatcher.isMatching(concept.getCode(), code)) {
                             return true;
                         }
                     }

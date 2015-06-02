@@ -1,68 +1,104 @@
 package org.freeshr.application.fhir;
 
-import org.freeshr.infrastructure.tr.TerminologyServer;
-import org.hl7.fhir.instance.model.Code;
+import org.apache.log4j.Logger;
+import org.freeshr.config.SHRProperties;
+import org.freeshr.infrastructure.tr.CodeValidator;
+import org.freeshr.infrastructure.tr.CodeValidatorFactory;
+import org.freeshr.utils.StringUtils;
+import org.hl7.fhir.instance.model.CodeType;
 import org.hl7.fhir.instance.model.OperationOutcome;
 import org.hl7.fhir.instance.model.ValueSet;
-import org.hl7.fhir.instance.utils.ConceptLocator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hl7.fhir.instance.model.ValueSet.ValueSetExpansionComponent;
+import org.hl7.fhir.instance.utils.ITerminologyServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-
-import static java.util.Collections.EMPTY_LIST;
-import static org.hl7.fhir.instance.model.ValueSet.ValueSetDefineConceptComponent;
-import static org.hl7.fhir.instance.model.ValueSet.ValueSetExpansionContainsComponent;
+import org.springframework.web.client.AsyncRestTemplate;
+import rx.Observable;
 
 @Component
-public class TRConceptLocator implements ConceptLocator {
+public class TRConceptLocator implements ITerminologyServices {
 
-    private TerminologyServer terminologyServer;
+    private final CodeValidatorFactory factory;
+    private AsyncRestTemplate shrRestTemplate;
+    private SHRProperties shrProperties;
 
-    private final static Logger logger = LoggerFactory.getLogger(TRConceptLocator.class);
 
     @Autowired
-    public TRConceptLocator(TerminologyServer terminologyServer) {
-        this.terminologyServer = terminologyServer;
+    public TRConceptLocator(CodeValidatorFactory factory, AsyncRestTemplate shrRestTemplate, SHRProperties shrProperties) {
+        this.factory = factory;
+        this.shrRestTemplate = shrRestTemplate;
+        this.shrProperties = shrProperties;
     }
 
-    @Override
-    public ValueSetDefineConceptComponent locate(String system, final String code) {
-        try {
-            final Boolean isValid = terminologyServer.isValid(system, code).toBlocking().first();
-            if (isValid) {
-                Code conceptCode = new Code();
-                conceptCode.setValue(code);
-                return new ValueSetDefineConceptComponent(conceptCode);
-            } else {
-                return null;
-            }
-        } catch (Exception e) {
-            logger.debug("Problem while validating concept", e);
-            return null;
-        }
-    }
+
+    private static Logger logger = Logger.getLogger(TRConceptLocator.class);
 
     @Override
     @Cacheable(value = "trCache", unless = "#result != null")
-    public ValidationResult validate(String system, String code, String display) {
-        if (locate(system, code) == null) {
-            return new ValidationResult(OperationOutcome.IssueSeverity.error, display);
+    public ValidationResult validateCode(String system, String code, String display) {
+        if (getCodeDefinition(system, code) == null) {
+            return new ValidationResult(OperationOutcome.IssueSeverity.ERROR, display);
         }
         return null;
     }
 
     @Override
-    public boolean verifiesSystem(String system) {
-        //return StringUtils.contains(system, "openmrs");
-        return terminologyServer.verifiesSystem(system);
+    public ValueSetExpansionComponent expandVS(ValueSet.ConceptSetComponent inc) throws Exception {
+        return null;
     }
 
     @Override
-    public List<ValueSetExpansionContainsComponent> expand(ValueSet.ConceptSetComponent inc) throws Exception {
-        return EMPTY_LIST;
+    public boolean supportsSystem(String system) {
+        return factory.getValidator(system) != null;
+    }
+
+    @Override
+    public ValueSet.ConceptDefinitionComponent getCodeDefinition(String system, String code) {
+        try {
+            final Boolean isValid = isValid(system, code).toBlocking().first();
+            if (isValid) {
+                CodeType codeType = new CodeType();
+                codeType.setValue(code);
+                return new ValueSet.ConceptDefinitionComponent(codeType);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            logger.warn(e);
+            return null;
+        }
+    }
+
+    @Override
+    public ValueSet expandVS(ValueSet vs) throws Exception {
+        return null;
+    }
+
+    @Override
+    public boolean checkVS(ValueSet.ConceptSetComponent vsi, String system, String code) {
+        return true;
+    }
+
+    @Override
+    public boolean verifiesSystem(String system) {
+        return factory.getValidator(system) != null;
+    }
+
+    public Observable<Boolean> isValid(String system, String code) {
+        String trServerReferencePath = StringUtils.ensureSuffix(shrProperties.getTerminologyServerReferencePath(), "/");
+        if (!system.startsWith(trServerReferencePath)) {
+            return Observable.just(false);
+        }
+
+        String trLocationPath = StringUtils.ensureSuffix(shrProperties.getTRLocationPath(), "/");
+        String terminologyRefSystem = system.replace(trServerReferencePath, trLocationPath);
+
+        CodeValidator validator = factory.getValidator(terminologyRefSystem);
+        if (validator != null) {
+//            return validator.isValid(factory.getSystem(terminologyRefSystem), code);
+            return validator.isValid(terminologyRefSystem, code);
+        }
+        return Observable.just(false);
     }
 }

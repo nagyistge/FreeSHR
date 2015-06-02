@@ -1,9 +1,7 @@
 package org.freeshr.validations.providerIdentifiers;
 
-import org.freeshr.utils.AtomFeedHelper;
-import org.freeshr.validations.ValidationSubject;
-import org.hl7.fhir.instance.model.AtomEntry;
-import org.hl7.fhir.instance.model.Resource;
+import org.freeshr.utils.BundleHelper;
+import org.hl7.fhir.instance.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,18 +23,18 @@ public class EncounterParticipantIdentifierTest {
 
     @Test
     public void shouldValidateResourceOfTypeEncounter() {
-        ValidationSubject<AtomEntry<? extends Resource>> validationSubject = AtomFeedHelper.getAtomFeed
+        BundleEntryComponent bundleEntry = BundleHelper.getBundleEntry
                 ("xmls/encounters/providers_identifiers/encounter_with_valid_participant.xml",
-                ResourceType.Encounter);
-        assertTrue(encounterParticipantIdentifier.validates(validationSubject.extract().getResource()));
+                        ResourceType.Encounter);
+        assertTrue(encounterParticipantIdentifier.validates(bundleEntry.getResource()));
     }
 
     @Test
     public void shouldExtractProperEncounterParticipantReferences() {
-        ValidationSubject<AtomEntry<? extends Resource>> validationSubject = AtomFeedHelper.getAtomFeed
+        BundleEntryComponent bundleEntry = BundleHelper.getBundleEntry
                 ("xmls/encounters/providers_identifiers/encounter_with_valid_participant.xml",
-                ResourceType.Encounter);
-        List<String> references = encounterParticipantIdentifier.extractUrls(validationSubject.extract().getResource());
+                        ResourceType.Encounter);
+        List<String> references = encounterParticipantIdentifier.extractUrls(bundleEntry.getResource());
         assertTrue(!CollectionUtils.isEmpty(references));
         assertEquals("http://127.0.0.1:9997/providers/18.json", references.get(0));
 

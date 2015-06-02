@@ -1,20 +1,15 @@
 package org.freeshr.utils;
 
-import org.hl7.fhir.instance.model.DateAndTime;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static org.freeshr.utils.DateUtil.SIMPLE_DATE_FORMAT;
 import static org.freeshr.utils.DateUtil.isValidPeriod;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class DateUtilTest {
 
@@ -79,25 +74,25 @@ public class DateUtilTest {
 
     @Test
     public void shouldValidatePeriod() throws Exception {
-        DateAndTime startDate = new DateAndTime("2014-12-31T00:00:00+05:30");
-        DateAndTime endDate = new DateAndTime("2014-12-31T00:00:00+05:30");
+        Date startDate = DateUtil.parseDate("2014-12-31T00:00:00+05:30");
+        Date endDate = DateUtil.parseDate("2014-12-31T00:00:00+05:30");
         assertTrue(isValidPeriod(startDate, endDate));
 
-        startDate = new DateAndTime("2014-12-31T00:00:00+05:30");
+        startDate = DateUtil.parseDate("2014-12-31T00:00:00+05:30");
         endDate = null;
         assertTrue(isValidPeriod(startDate, endDate));
 
 
         startDate = null;
-        endDate = new DateAndTime("2014-12-31T00:00:00+05:30");
+        endDate = DateUtil.parseDate("2014-12-31T00:00:00+05:30");
         assertTrue(isValidPeriod(startDate, endDate));
 
         startDate = null;
         endDate = null;
         assertTrue(isValidPeriod(startDate, endDate));
 
-        startDate = new DateAndTime("2014-12-31T00:00:00+05:30");
-        endDate = new DateAndTime("2014-11-30T00:00:00+05:30");
+        startDate = DateUtil.parseDate("2014-12-31T00:00:00+05:30");
+        endDate = DateUtil.parseDate("2014-11-30T00:00:00+05:30");
         assertFalse(isValidPeriod(startDate, endDate));
     }
 }

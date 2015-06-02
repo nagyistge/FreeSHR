@@ -3,7 +3,7 @@ package org.freeshr.validations.providerIdentifiers;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.instance.model.DiagnosticReport;
 import org.hl7.fhir.instance.model.Resource;
-import org.hl7.fhir.instance.model.ResourceReference;
+import org.hl7.fhir.instance.model.Reference;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -18,10 +18,10 @@ public class DiagnosticReportPerformerIdentifier extends ClinicalResourceProvide
 
     @Override
     protected List<String> extractUrls(Resource resource) {
-        ResourceReference performer = ((DiagnosticReport) resource).getPerformer();
+        Reference performer = ((DiagnosticReport) resource).getPerformer();
         String url = null;
         if (performer != null) {
-            url = performer.getReferenceSimple() == null ? StringUtils.EMPTY : performer.getReferenceSimple();
+            url = performer.getReference() == null ? StringUtils.EMPTY : performer.getReference();
         }
         return url == null ? null : Arrays.asList(url);
     }

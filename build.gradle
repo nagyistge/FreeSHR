@@ -46,7 +46,7 @@ ext.libraries = [
         saxen                : 'net.sf.saxon:Saxon-HE:9.4',
         xmlpull              : 'xmlpull:xmlpull:1.1.3.1',
         apache_commons_io    : 'commons-io:commons-io:2.4',
-        fhir_validator       : 'me.fhir:fhir-dstu1:0.0.81.2489',
+        fhir                 : 'me.fhir:fhir-dstu2:0.5.0.5149',
         jackson              : 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.4.0',
         saxon                : 'net.sf.saxon:Saxon-HE:9.5.1-6',
         rxjava               : 'io.reactivex:rxjava:1.+',

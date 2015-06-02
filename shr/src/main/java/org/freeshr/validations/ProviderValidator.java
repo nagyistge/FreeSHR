@@ -2,8 +2,8 @@ package org.freeshr.validations;
 
 import org.freeshr.config.SHRProperties;
 import org.freeshr.validations.providerIdentifiers.ClinicalResourceProviderIdentifier;
-import org.hl7.fhir.instance.model.AtomEntry;
-import org.hl7.fhir.instance.model.AtomFeed;
+import org.hl7.fhir.instance.model.Bundle;
+import org.hl7.fhir.instance.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.validation.ValidationMessage;
 import org.slf4j.Logger;
@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.freeshr.validations.ResourceValidator.INVALID;
-import static org.hl7.fhir.instance.model.OperationOutcome.IssueSeverity.error;
+import static org.hl7.fhir.instance.model.OperationOutcome.IssueSeverity.ERROR;
 
 @Component
-public class ProviderValidator implements Validator<AtomFeed> {
+public class ProviderValidator implements Validator<Bundle> {
 
     private static final Logger logger = LoggerFactory.getLogger(ProviderValidator.class);
     private List<ClinicalResourceProviderIdentifier> clinicalResourceProviderIdentifiers;
@@ -32,19 +32,17 @@ public class ProviderValidator implements Validator<AtomFeed> {
     }
 
     @Override
-    public List<ValidationMessage> validate(ValidationSubject<AtomFeed> subject) {
-        AtomFeed atomFeed = subject.extract();
-        List<AtomEntry<? extends Resource>> entryList = atomFeed.getEntryList();
+    public List<ValidationMessage> validate(Bundle bundle) {
+        List<BundleEntryComponent> entryList = bundle.getEntry();
         List<ValidationMessage> validationMessages = new ArrayList<>();
-        for (AtomEntry<? extends Resource> entry : entryList) {
+        for (BundleEntryComponent entry : entryList) {
             Resource resource = entry.getResource();
             for (ClinicalResourceProviderIdentifier clinicalResourceProviderIdentifier : clinicalResourceProviderIdentifiers) {
                 if (!clinicalResourceProviderIdentifier.isValid(resource, shrProperties)) {
                     logger.debug(String.format("Provider:Encounter failed for %s", ValidationMessages.INVALID_PROVIDER_URL));
                     validationMessages.add(new ValidationMessage(ValidationMessage.Source.ProfileValidator,
                             INVALID, entry.getId(),
-                            ValidationMessages.INVALID_PROVIDER_URL + " in " + resource.getResourceType().getPath(),
-                            error));
+                            ValidationMessages.INVALID_PROVIDER_URL + " in " + resource.getResourceType().getPath(), ERROR));
                 }
             }
         }

@@ -1,8 +1,11 @@
 package org.freeshr.validations;
 
 
-import org.hl7.fhir.instance.model.*;
-import org.hl7.fhir.instance.utils.ConceptLocator;
+import org.hl7.fhir.instance.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.instance.model.OperationOutcome;
+import org.hl7.fhir.instance.model.Property;
+import org.hl7.fhir.instance.model.Quantity;
+import org.hl7.fhir.instance.utils.ITerminologyServices;
 import org.hl7.fhir.instance.validation.ValidationMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +18,7 @@ import java.util.List;
 import static org.freeshr.validations.ValidationMessages.INVALID_DOSAGE_QUANTITY;
 
 @Component
-public class ImmunizationValidator implements Validator<AtomEntry<? extends Resource>> {
+public class ImmunizationValidator implements Validator<BundleEntryComponent> {
 
     private static final Logger logger = LoggerFactory.getLogger(ImmunizationValidator.class);
     public static final String DOSE_QUANTITY = "doseQuantity";
@@ -30,12 +33,11 @@ public class ImmunizationValidator implements Validator<AtomEntry<? extends Reso
     }
 
     @Override
-    public List<ValidationMessage> validate(ValidationSubject<AtomEntry<? extends Resource>> subject) {
-        AtomEntry<? extends Resource> atomEntry = subject.extract();
-        return validateDosageQuantity(atomEntry);
+    public List<ValidationMessage> validate(BundleEntryComponent bundleEntry) {
+        return validateDosageQuantity(bundleEntry);
     }
 
-    private List<ValidationMessage> validateDosageQuantity(AtomEntry<? extends Resource> atomEntry) {
+    private List<ValidationMessage> validateDosageQuantity(BundleEntryComponent atomEntry) {
         List<ValidationMessage> validationMessages = new ArrayList<>();
         Property property = atomEntry.getResource().getChildByName(DOSE_QUANTITY);
         if (!property.getName().equals(DOSE_QUANTITY) || !property.hasValues()) return validationMessages;
@@ -43,9 +45,9 @@ public class ImmunizationValidator implements Validator<AtomEntry<? extends Reso
         Quantity doseQuantity = (Quantity) property.getValues().get(0);
         if (doseQuantityValidator.isReferenceUrlNotFound(doseQuantity)
                 || !urlValidator.isValid(doseQuantity
-                .getSystemSimple())) return validationMessages;
+                .getSystem())) return validationMessages;
 
-        ConceptLocator.ValidationResult validationResult = doseQuantityValidator.validate(doseQuantity);
+        ITerminologyServices.ValidationResult validationResult = doseQuantityValidator.validate(doseQuantity);
         if (null == validationResult) return validationMessages;
 
         logger.debug("Medication-Prescription DosageQuantity Code is invalid.");
@@ -53,7 +55,7 @@ public class ImmunizationValidator implements Validator<AtomEntry<? extends Reso
         validationMessages.add(new ValidationMessage(null,
                 ResourceValidator.INVALID, atomEntry.getId(),
                 INVALID_DOSAGE_QUANTITY,
-                OperationOutcome.IssueSeverity.error));
+                OperationOutcome.IssueSeverity.ERROR));
         return validationMessages;
     }
 
