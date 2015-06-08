@@ -38,12 +38,6 @@ public class ImmunizationValidatorTest {
     @Before
     public void setup() throws Exception {
         initMocks(this);
-
-    }
-
-    private ImmunizationValidator getValidator() {
-        DoseQuantityValidator doseQuantityValidator = new DoseQuantityValidator(trConceptLocator);
-        return new ImmunizationValidator(doseQuantityValidator, new UrlValidator());
     }
 
     @Test
@@ -61,7 +55,6 @@ public class ImmunizationValidatorTest {
 
     @Test
     public void shouldRejectInvalidDoseQuantityType() {
-
         BundleEntryComponent feed = getBundleEntry
                 ("xmls/encounters/immunization/immunization_invalid_dose_quantity.xml", ResourceType.Immunization);
 
@@ -76,5 +69,10 @@ public class ImmunizationValidatorTest {
 
         assertEquals(1, validationMessasges.size());
         assertEquals(INVALID_DOSAGE_QUANTITY, validationMessasges.get(0).getMessage());
+    }
+
+    private ImmunizationValidator getValidator() {
+        DoseQuantityValidator doseQuantityValidator = new DoseQuantityValidator(trConceptLocator);
+        return new ImmunizationValidator(doseQuantityValidator, new UrlValidator());
     }
 }

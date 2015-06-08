@@ -70,7 +70,6 @@ public class EncounterValidatorIntegrationTest {
 
     private EncounterValidationContext validationContext;
 
-
     @Before
     public void setup() throws Exception {
         initMocks(this);
@@ -326,7 +325,6 @@ public class EncounterValidatorIntegrationTest {
         assertFailureFromResponseErrors("/f:entry[3]/f:content/f:Observation/f:Observation/f:name/f:coding",
                 "Invalid code 77405a73-b915-4a93-87a7-f29fe6697fb4-INVALID", response.getErrors());
         assertEquals(1, response.getErrors().size());
-
     }
 
     @Test

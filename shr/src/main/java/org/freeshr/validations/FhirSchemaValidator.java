@@ -28,9 +28,9 @@ public class FhirSchemaValidator implements Validator<String> {
     @Autowired
     public FhirSchemaValidator(TRConceptLocator trConceptLocator, SHRProperties shrProperties) throws Exception {
         WorkerContext workerContext = WorkerContext.fromPack(shrProperties.getValidationFilePath());
-//        loadValueSets(workerContext, fhirTrMap);
         workerContext.setTerminologyServices(trConceptLocator);
         this.instanceValidator = new InstanceValidator(workerContext);
+//        loadValueSets(workerContext, fhirTrMap);
     }
 
     private Document document(String sourceXml) throws ParserConfigurationException, SAXException, IOException {
