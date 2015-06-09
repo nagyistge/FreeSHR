@@ -26,3 +26,4 @@ nohup.out
 
 #zip files
 *.zip
+!validation.zip
