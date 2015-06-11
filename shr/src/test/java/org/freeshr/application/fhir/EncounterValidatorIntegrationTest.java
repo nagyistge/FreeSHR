@@ -97,47 +97,8 @@ public class EncounterValidatorIntegrationTest {
                         .withHeader("Content-Type", "application/json")
                         .withBody(asString("jsons/facility10000069.json"))));
 
-        givenThat(get(urlEqualTo("/facilities/100000603.json"))
-                .willReturn(aResponse()
-                        .withStatus(404)
-                        .withHeader("Content-Type", "application/json")
-                        .withBody(asString("jsons/facility100000603.json"))));
-
     }
 
-    @Test
-    public void shouldValidateEncounterIfItHasAValidFacility() throws Exception {
-        encounterBundle = EncounterBundleData.encounter(EncounterBundleData.HEALTH_ID,
-                FileUtil.asString("xmls/encounters/encounterWithValidFacility.xml"));
-        validationContext = new EncounterValidationContext(encounterBundle, new BundleDeserializer());
-        EncounterValidationResponse response = validator.validate(validationContext);
-        for (Error error : response.getErrors()) {
-            System.out.println(error);
-        }
-        assertTrue(response.isSuccessful());
-    }
-
-    @Test
-    public void shouldFailIfNotAValidFacility() throws Exception {
-        encounterBundle = EncounterBundleData.encounter(EncounterBundleData.HEALTH_ID,
-                FileUtil.asString("xmls/encounters/encounterWithInvalidFacility.xml"));
-        validationContext = new EncounterValidationContext(encounterBundle, new BundleDeserializer());
-        EncounterValidationResponse response = validator.validate(validationContext);
-        assertFailureFromResponseErrors("urn:d3cc23c3-1f12-4b89-a415-356feeba0690", FacilityValidator.INVALID_SERVICE_PROVIDER, response
-                .getErrors());
-        assertEquals(1, response.getErrors().size());
-    }
-
-    @Test
-    public void shouldFailIfFacilityUrlIsInvalid() throws Exception {
-        encounterBundle = EncounterBundleData.encounter(EncounterBundleData.HEALTH_ID,
-                FileUtil.asString("xmls/encounters/encounterWithInvalidFacilityUrl.xml"));
-        validationContext = new EncounterValidationContext(encounterBundle, new BundleDeserializer());
-        EncounterValidationResponse response = validator.validate(validationContext);
-        assertFailureFromResponseErrors("urn:d3cc23c3-1f12-4b89-a415-356feeba0690", FacilityValidator.INVALID_SERVICE_PROVIDER_URL,
-                response.getErrors());
-        assertEquals(1, response.getErrors().size());
-    }
 
     @Test
     public void shouldValidateEncounterWhenInProperFormat() throws Exception {
