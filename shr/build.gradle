@@ -172,6 +172,9 @@ task debugSHR(type: JavaExec) {
     debug = true
 }
 
+tasks.withType(Test) {
+    enableAssertions = false
+}
 
 buildscript {
     repositories {

@@ -2,6 +2,7 @@ package org.freeshr;
 
 import org.apache.commons.lang3.StringUtils;
 import org.freeshr.utils.BundleDeserializer;
+import org.freeshr.utils.CollectionUtils;
 import org.freeshr.utils.FileUtil;
 import org.hl7.fhir.instance.formats.XmlParser;
 import org.hl7.fhir.instance.model.Bundle;
@@ -24,6 +25,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,16 +53,22 @@ public class Mapper {
         Element metaUpdated = getMetaUpdated(document, feed);
         bundleEle.appendChild(metaUpdated);
 
+        bundleEle.appendChild(createTagWithValue(document, "base", "urn:uuid:"));
         bundleEle.appendChild(createTagWithValue(document, "type", "document"));
 
-        bundleEle.appendChild(createEntry(document, getComposition(document, feed)));
-        bundleEle.appendChild(createEntry(document, getEncounter(document, feed)));
+
+        Element encounter = getEncounter(document, feed);
+        bundleEle.appendChild(createEntry(document, getComposition(document, feed, encounter)));
+        bundleEle.appendChild(createEntry(document, encounter));
 
         NodeList entries = document.getElementsByTagName("entry");
 
         for (int i = 2; i < entries.getLength(); i++) {
             bundleEle.appendChild(createEntry(document, processResource(document, feed, i)));
         }
+
+        List<Element> references = getElementsByTag(bundleEle, "reference");
+        addUrns(references);
 
         document.removeChild(feed);
         document.appendChild(bundleEle);
@@ -75,28 +83,48 @@ public class Mapper {
     }
 
 
-    private Element getComposition(Document document, Element feed) {
+    private Element getComposition(Document document, Element feed, Element encounter) {
         Element composition = extractResourceAndAddId(document, feed, 0);
 
-        Element author = document.createElement("author");
-        author.appendChild(createTagWithValue(document, "reference", "Organization/f001"));
-        author.appendChild(createTagWithValue(document, "display", "BMC"));
+        Element author = getAuthor(document, encounter, composition);
         composition.insertBefore(author, getNodeAsElement(composition, "encounter", 0));
 
+        Element confidentiality = getConfidentiality(document, composition);
+        composition.insertBefore(confidentiality, author);
+
+        composition.insertBefore(createType(document, "http://hl7.org/fhir/vs/doc-codes", "11488-4"), confidentiality);
+
+        return composition;
+    }
+
+    private Element getConfidentiality(Document document, Element composition) {
         Element confidentialityElement = getNodeAsElement(composition, "confidentiality", 0);
         String confidentialityValue = "N";
-        if(confidentialityElement != null) {
+        if (confidentialityElement != null) {
             Element code = getNodeAsElement(confidentialityElement, "code", 0);
             confidentialityValue = code.getAttribute("value");
             composition.removeChild(confidentialityElement);
         }
         Element confidentiality = document.createElement("confidentiality");
         confidentiality.setAttribute("value", confidentialityValue);
-        composition.insertBefore(confidentiality, author);
+        return confidentiality;
+    }
 
-        composition.insertBefore(createType(document, "http://hl7.org/fhir/vs/doc-codes", "11488-4"), confidentiality);
-
-        return composition;
+    private Element getAuthor(Document document, Element encounter, Element composition) {
+        Element author = getNodeAsElement(composition, "author", 0);
+        if (author != null) {
+            composition.removeChild(author);
+        }
+        author = document.createElement("author");
+        Element serviceProvider = getNodeAsElement(encounter, "serviceProvider", 0);
+        String facilityUrl;
+        if (serviceProvider != null) {
+            facilityUrl = getNodeAsElement(serviceProvider, "reference", 0).getAttribute("value");
+        } else {
+            facilityUrl = "http://127.0.0.1:9997/facilities/10000069.json";
+        }
+        author.appendChild(createTagWithValue(document, "reference", facilityUrl));
+        return author;
     }
 
     private Element getEncounter(Document document, Element feed) {
@@ -119,7 +147,7 @@ public class Mapper {
         if ("Condition".equals(resourceName)) {
             renameNode(document, resource, "status", "clinicalStatus");
             Element dateAsserted = getNodeAsElement(resource, "dateAsserted", 0);
-            if(dateAsserted != null) {
+            if (dateAsserted != null) {
                 String dateAssertedValue = dateAsserted.getAttribute("value");
                 dateAsserted.removeAttribute("value");
                 dateAsserted.setAttribute("value", dateAssertedValue.replace(dateAssertedValue, StringUtils.substringBefore(dateAssertedValue, "T")));
@@ -138,6 +166,16 @@ public class Mapper {
         return resource;
     }
 
+    private void addUrns(List<Element> references) {
+        for (Element reference : references) {
+            String value = reference.getAttribute("value");
+            if(!StringUtils.startsWith(value, "http")){
+                value = StringUtils.prependIfMissing(StringUtils.stripStart(value, "urn:"), "urn:uuid:");
+            }
+            reference.setAttribute("value", value);
+        }
+    }
+
     private void convertAttributeToChildWithTagName(Document document, Element resource, String elementName, String attribute, String childTagName) {
         Element outcome = getNodeAsElement(resource, elementName, 0);
         String value = outcome.getAttribute(attribute);
@@ -148,17 +186,19 @@ public class Mapper {
     private Element extractResourceAndAddId(Document document, Element feed, int resourceIndex) {
         Element entry = getNodeAsElement(feed, "entry", resourceIndex);
         Element resource = getContent(entry);
-        Element id = getNodeAsElement(entry, "id", 0);
+        String id = getNodeAsElement(entry, "id", 0).getTextContent();
+        id = StringUtils.stripStart(id, "urn:");
+
 
         Element identifier = getNodeAsElement(resource, "identifier", 0);
 
-        resource.insertBefore(createTagWithValue(document, "id", id.getTextContent()), identifier);
+        resource.insertBefore(createTagWithValue(document, "id", id), identifier);
         return resource;
     }
 
     private Element renameNode(Document document, Element resource, String from, String patient) {
         Element subject = getNodeAsElement(resource, from, 0);
-        if(subject != null) {
+        if (subject != null) {
             document.renameNode(subject, subject.getNamespaceURI(), patient);
         }
         return resource;
@@ -178,15 +218,20 @@ public class Mapper {
     }
 
     private Element getNodeAsElement(Element parentElement, String childName, int index) {
-        NodeList elementsByTagName = getNodeList(parentElement, childName);
-        if(elementsByTagName.getLength() > 0) {
-            return (Element) elementsByTagName.item(index);
+        List<Element> elementsByTagName = getElementsByTag(parentElement, childName);
+        if (CollectionUtils.isNotEmpty(elementsByTagName)) {
+            return elementsByTagName.get(index);
         }
         return null;
     }
 
-    private NodeList getNodeList(Element parentElement, String childName) {
-        return parentElement.getElementsByTagName(childName);
+    private List<Element> getElementsByTag(Element parentElement, String childName) {
+        NodeList nodes = parentElement.getElementsByTagName(childName);
+        List<Element> elements = new ArrayList<>();
+        for(int i=0; i< nodes.getLength(); i++){
+            elements.add((Element)nodes.item(i));
+        }
+        return elements;
     }
 
     private Element getContent(Element entry) {
@@ -210,8 +255,8 @@ public class Mapper {
         Element entry = document.createElement("entry");
         Element resource = document.createElement("resource");
 
-        Element id = getNodeAsElement(resourceContent, "id", 0);
-        entry.setAttribute("id", id.getAttribute("value"));
+        String id = getNodeAsElement(resourceContent, "id", 0).getAttribute("value");
+        entry.setAttribute("id", id);
 
         resource.appendChild(resourceContent);
         entry.appendChild(resource);

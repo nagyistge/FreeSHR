@@ -2,7 +2,7 @@
 
 <feed xmlns="http://www.w3.org/2005/Atom">
     <title>Encounter</title>
-    <id>http://localhost/encounters/bcf6c340-d04a-4c29-b50c-2552beeee037</id>
+    <id>bcf6c340-d04a-4c29-b50c-2552beeee037</id>
     <updated>2014-07-25T16:50:29+05:30</updated>
     <link rel="fhir-base" href="http://localhost/"/>
     <entry>

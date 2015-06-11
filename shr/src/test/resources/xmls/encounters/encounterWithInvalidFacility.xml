@@ -109,7 +109,7 @@
                 </code>
                 <category>
                     <coding>
-                        <system value="http://hl7.org/fhir/condition-category"/>
+                        <system value="http://hl7.org/fhir/vs/condition-category"/>
                         <code value="diagnosis"/>
                         <display value="Diagnosis"/>
                     </coding>

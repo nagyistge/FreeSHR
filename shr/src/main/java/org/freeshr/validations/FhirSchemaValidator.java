@@ -33,15 +33,6 @@ public class FhirSchemaValidator implements Validator<String> {
 //        loadValueSets(workerContext, fhirTrMap);
     }
 
-    private Document document(String sourceXml) throws ParserConfigurationException, SAXException, IOException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setNamespaceAware(true);
-        factory.setValidating(false);
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        return builder.parse(new ByteArrayInputStream(sourceXml.getBytes()));
-    }
-
-
     @Override
     public List<ValidationMessage> validate(String sourceXml) {
         try {
@@ -50,5 +41,13 @@ public class FhirSchemaValidator implements Validator<String> {
             logger.debug(String.format("Error in validating schema.Cause: %s", e.getMessage()));
             throw new RuntimeException(e);
         }
+    }
+
+    private Document document(String sourceXml) throws ParserConfigurationException, SAXException, IOException {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        factory.setValidating(false);
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        return builder.parse(new ByteArrayInputStream(sourceXml.getBytes()));
     }
 }

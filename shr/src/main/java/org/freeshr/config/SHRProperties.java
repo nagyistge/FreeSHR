@@ -168,7 +168,7 @@ public class SHRProperties {
         if (StringUtils.isNotBlank(validationZipPath)) {
             return validationZipPath;
         } else {
-            return new File(this.getClass().getClassLoader().getResource("validation-min.zip").toURI()).getAbsolutePath();
+            return new File(this.getClass().getClassLoader().getResource("validation.zip").toURI()).getAbsolutePath();
         }
     }
 
