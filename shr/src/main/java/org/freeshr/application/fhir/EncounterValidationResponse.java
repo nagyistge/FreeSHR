@@ -40,7 +40,7 @@ public class EncounterValidationResponse {
     public static EncounterValidationResponse fromValidationMessages(List<ValidationMessage> validationMessages,
                                                                      FhirMessageFilter filter) {
         return filter.getValidationResponseFromMessagesSevereThan(validationMessages,
-                OperationOutcome.IssueSeverity.WARNING);
+                OperationOutcome.IssueSeverity.ERROR);
     }
 
 

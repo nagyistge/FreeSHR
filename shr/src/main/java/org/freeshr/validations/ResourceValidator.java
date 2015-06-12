@@ -16,9 +16,6 @@ import java.util.Map;
 @Component
 public class ResourceValidator implements Validator<Bundle> {
 
-    public static final String INVALID = "invalid";
-    public static final String CODE_UNKNOWN = "code-unknown";
-
     private Map<ResourceType, Validator<BundleEntryComponent>> resourceTypeValidatorMap = new HashMap<>();
 
     @Autowired

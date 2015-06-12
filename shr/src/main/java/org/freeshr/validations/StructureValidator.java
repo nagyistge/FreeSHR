@@ -20,7 +20,7 @@ public class StructureValidator implements Validator<Bundle> {
 
         if (compositionEntry == null) {
 
-            validationMessages.add(new ValidationMessage(null, ResourceValidator.INVALID, "Feed",
+            validationMessages.add(new ValidationMessage(null, ERROR_TYPE_INVALID, "Feed",
                     FEED_MUST_HAVE_COMPOSITION, OperationOutcome.IssueSeverity.ERROR));
             return validationMessages;
         }
@@ -32,7 +32,7 @@ public class StructureValidator implements Validator<Bundle> {
         //Add error for each section with no entry.
         for (String entryReferenceId : compositionSectionIds) {
 
-            validationMessages.add(new ValidationMessage(null, ResourceValidator.INVALID, entryReferenceId, String
+            validationMessages.add(new ValidationMessage(null, ERROR_TYPE_INVALID, entryReferenceId, String
                     .format
                             ("No entry present" +
                                     " for the section with id %s", entryReferenceId), OperationOutcome.IssueSeverity.ERROR));
@@ -54,7 +54,7 @@ public class StructureValidator implements Validator<Bundle> {
 
                 if (compositionSectionIds.contains(identifier)) continue;
 
-                validationMessages.add(new ValidationMessage(null, ResourceValidator.INVALID, identifier, String.format
+                validationMessages.add(new ValidationMessage(null, ERROR_TYPE_INVALID, identifier, String.format
                         ("Entry with id %s " +
                                         "is not present in the composition section list.",
                                 identifier), OperationOutcome.IssueSeverity.ERROR));

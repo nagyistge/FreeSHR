@@ -45,7 +45,7 @@ public class FacilityValidator implements Validator<Bundle> {
         }
         String facilityUrl = serviceProvider.getReference();
         if (facilityUrl.isEmpty() || !isValidFacilityUrl(facilityUrl)) {
-            validationMessages.add(buildValidationMessage(ResourceValidator.INVALID, encounterEntry.getId(),
+            validationMessages.add(buildValidationMessage(ERROR_TYPE_INVALID, encounterEntry.getId(),
                     INVALID_SERVICE_PROVIDER_URL, IssueSeverity.ERROR));
             logger.debug("Encounter failed for invalid facility URL");
             return validationMessages;
@@ -53,7 +53,7 @@ public class FacilityValidator implements Validator<Bundle> {
 
         Facility facility = checkForFacility(facilityUrl).toBlocking().first();
         if (facility == null) {
-            validationMessages.add(buildValidationMessage(ResourceValidator.INVALID, encounterEntry.getId(), INVALID_SERVICE_PROVIDER,
+            validationMessages.add(buildValidationMessage(ERROR_TYPE_INVALID, encounterEntry.getId(), INVALID_SERVICE_PROVIDER,
                     IssueSeverity.ERROR));
             return validationMessages;
         }

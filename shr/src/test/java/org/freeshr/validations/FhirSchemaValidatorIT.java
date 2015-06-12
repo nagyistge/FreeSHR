@@ -43,7 +43,6 @@ public class FhirSchemaValidatorIT {
 
     }
 
-
     @Test
     public void shouldNotAcceptEncounterIfNoHealthIdIsPresentInComposition() {
         givenThat(get(urlEqualTo("/facilities/10000069.json"))
@@ -68,7 +67,7 @@ public class FhirSchemaValidatorIT {
         ValidationMessageList messageList = new ValidationMessageList(validationMessages);
         assertFalse(messageList.isSuccessfull());
         assertTrue(messageList.isOfSize(1));
-        assertTrue(messageList.hasMessage("Composition must have patient's Health Id in subject."));
+        assertTrue(messageList.hasErrorOfTypeAndMessage("Element subject @ /f:Bundle/f:entry[1]/f:resource/f:Composition: min required = 1, but only found 0",
+                Validator.ERROR_TYPE_STRUCTURE));
     }
-
 }

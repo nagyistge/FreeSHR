@@ -7,17 +7,17 @@ import java.util.List;
 
 import static ch.lambdaj.Lambda.*;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hl7.fhir.instance.model.OperationOutcome.IssueSeverity.WARNING;
+import static org.hl7.fhir.instance.model.OperationOutcome.IssueSeverity.ERROR;
 
 public class ValidationMessageList {
     private List<ValidationMessage> validationMessages;
 
     public ValidationMessageList(List<ValidationMessage> validationMessages) {
-        this.validationMessages = new FhirMessageFilter().extractMessagesSevereThan(validationMessages, WARNING);
+        this.validationMessages = new FhirMessageFilter().extractMessagesSevereThan(validationMessages, ERROR);
     }
 
     public boolean hasMessage(String message){
-        return select(validationMessages, having(on(ValidationMessage.class).getMessage(), equalTo(message))) != null;
+        return !select(validationMessages, having(on(ValidationMessage.class).getMessage(), equalTo(message))).isEmpty();
     }
 
     public boolean hasErrorOfTypeAndMessage(String message, String type){

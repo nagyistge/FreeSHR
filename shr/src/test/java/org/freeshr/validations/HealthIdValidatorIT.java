@@ -46,7 +46,7 @@ public class HealthIdValidatorIT {
         ValidationMessageList messageList = new ValidationMessageList(validationMessages);
         assertFalse(messageList.isSuccessfull());
         assertTrue(messageList.isOfSize(2));
-        assertTrue(messageList.hasErrorOfTypeAndMessage("Patient's Health Id does not match.", ResourceValidator.INVALID));
+        assertTrue(messageList.hasErrorOfTypeAndMessage("Patient's Health Id does not match.", Validator.ERROR_TYPE_INVALID));
     }
 
     private EncounterValidationContext getEncounterContext(final String xml, final String healthId) {

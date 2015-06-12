@@ -53,7 +53,7 @@ public class ImmunizationValidator implements Validator<BundleEntryComponent> {
         logger.debug("Medication-Prescription DosageQuantity Code is invalid.");
 
         validationMessages.add(new ValidationMessage(null,
-                ResourceValidator.INVALID, atomEntry.getId(),
+                ERROR_TYPE_INVALID, atomEntry.getId(),
                 INVALID_DOSAGE_QUANTITY,
                 OperationOutcome.IssueSeverity.ERROR));
         return validationMessages;

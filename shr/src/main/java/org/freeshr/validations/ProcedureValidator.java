@@ -41,7 +41,7 @@ public class ProcedureValidator implements Validator<BundleEntryComponent> {
             Reference reference = (Reference) reportElement;
             if (reference.getReference() == null || reference.getReference().isEmpty()) {
                 logger.debug(String.format("Procedure:Encounter failed for %s", ValidationMessages.INVALID_DIAGNOSTIC_REPORT_REFERENCE));
-                return validationMessages(new ValidationMessage(null, ResourceValidator.INVALID, atomEntry.getId(), ValidationMessages
+                return validationMessages(new ValidationMessage(null, ERROR_TYPE_INVALID, atomEntry.getId(), ValidationMessages
                         .INVALID_DIAGNOSTIC_REPORT_REFERENCE, OperationOutcome.IssueSeverity.ERROR));
             }
         }
@@ -57,7 +57,7 @@ public class ProcedureValidator implements Validator<BundleEntryComponent> {
             Period period = (Period) element;
             if (!isValidPeriod(period.getStart(), period.getEnd())) {
                 logger.debug(String.format("Procedure:Encounter failed for %s", ValidationMessages.INVALID_PERIOD));
-                return validationMessages(new ValidationMessage(null, ResourceValidator.INVALID, atomEntry.getId(), ValidationMessages
+                return validationMessages(new ValidationMessage(null, ERROR_TYPE_INVALID, atomEntry.getId(), ValidationMessages
                         .INVALID_PERIOD, OperationOutcome.IssueSeverity.ERROR));
             }
         }

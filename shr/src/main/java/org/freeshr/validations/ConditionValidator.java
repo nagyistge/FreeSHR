@@ -51,7 +51,7 @@ public class ConditionValidator implements Validator<Bundle.BundleEntryComponent
 
         String errorMessage = (((CodeableConcept) property.getValues().get(0)).getCoding()).get(0).getDisplay();
 
-        ValidationMessage validationMessage = new ValidationMessage(null, ResourceValidator.CODE_UNKNOWN,
+        ValidationMessage validationMessage = new ValidationMessage(null, ERROR_TYPE_CODE_UNKNOWN,
                 atomEntry.getId(), errorMessage, IssueSeverity.ERROR);
         validationMessages.add(validationMessage);
     }

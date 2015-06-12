@@ -48,13 +48,13 @@ public class ResourceValidatorTest {
         assertThat(messages.size(), is(3));
         assertThat(messages.get(0).getLevel(), is(OperationOutcome.IssueSeverity.ERROR));
         assertThat(messages.get(0).getMessage(), is("Viral pneumonia 785857"));
-        assertThat(messages.get(0).getType(), is(ResourceValidator.CODE_UNKNOWN));
+        assertThat(messages.get(0).getType(), is(Validator.ERROR_TYPE_CODE_UNKNOWN));
         assertThat(messages.get(1).getLevel(), is(OperationOutcome.IssueSeverity.ERROR));
         assertThat(messages.get(1).getMessage(), is("Viral pneumonia 785857"));
-        assertThat(messages.get(1).getType(), is(ResourceValidator.CODE_UNKNOWN));
+        assertThat(messages.get(1).getType(), is(Validator.ERROR_TYPE_CODE_UNKNOWN));
         assertThat(messages.get(2).getLevel(), is(OperationOutcome.IssueSeverity.ERROR));
         assertThat(messages.get(2).getMessage(), is("Moderate"));
-        assertThat(messages.get(2).getType(), is(ResourceValidator.CODE_UNKNOWN));
+        assertThat(messages.get(2).getType(), is(Validator.ERROR_TYPE_CODE_UNKNOWN));
     }
 
     @Test

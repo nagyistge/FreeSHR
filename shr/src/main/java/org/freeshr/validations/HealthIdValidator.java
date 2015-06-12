@@ -47,7 +47,7 @@ public class HealthIdValidator implements Validator<EncounterValidationContext> 
                 String healthIdFromUrl = validateAndIdentifyPatientId(subjectRef.getReference(), expectedHealthId);
                 if (healthIdFromUrl == null) {
                     logger.debug(String.format("Encounter failed for %s", HEALTH_ID_NOT_MATCH));
-                    validationMessages.add(new ValidationMessage(ValidationMessage.Source.ProfileValidator, ResourceValidator.INVALID, entry.getId(),
+                    validationMessages.add(new ValidationMessage(ValidationMessage.Source.ProfileValidator, ERROR_TYPE_INVALID, entry.getId(),
                             HEALTH_ID_NOT_MATCH, OperationOutcome.IssueSeverity.ERROR));
                 }
             }

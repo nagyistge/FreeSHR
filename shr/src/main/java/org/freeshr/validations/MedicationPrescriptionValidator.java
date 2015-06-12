@@ -70,13 +70,13 @@ public class MedicationPrescriptionValidator implements Validator<BundleEntryCom
                 if (doseQuantityValidator.isReferenceUrlNotFound(doseQuantity)) return new ArrayList<>();
                 if (!urlValidator.isValid(doseQuantity.getSystem())) {
                     logger.debug(String.format("Medication-Prescription:Encounter failed for %s", INVALID_DOSAGE_QUANTITY_REFERENCE));
-                    return validationMessages(new ValidationMessage(null, ResourceValidator.INVALID, bundleEntry.getId(),
+                    return validationMessages(new ValidationMessage(null, ERROR_TYPE_INVALID, bundleEntry.getId(),
                             INVALID_DOSAGE_QUANTITY_REFERENCE, ERROR));
                 }
                 ITerminologyServices.ValidationResult validationResult = doseQuantityValidator.validate(doseQuantity);
                 if (validationResult != null) {
                     logger.debug(String.format("Medication-Prescription:Encounter failed for %s", INVALID_DOSAGE_QUANTITY));
-                    return validationMessages(new ValidationMessage(null, ResourceValidator.INVALID, bundleEntry.getId(),
+                    return validationMessages(new ValidationMessage(null, ERROR_TYPE_INVALID, bundleEntry.getId(),
                             INVALID_DOSAGE_QUANTITY, ERROR));
                 }
             }
@@ -94,10 +94,10 @@ public class MedicationPrescriptionValidator implements Validator<BundleEntryCom
         String dispenseMedicationRefUrl = getReferenceUrl(dispenseMedication);
         if ((dispenseMedicationRefUrl == null)) return new ArrayList<>();
         if (!urlValidator.isValid(dispenseMedicationRefUrl))
-            return validationMessages(new ValidationMessage(null, ResourceValidator.INVALID, bundleEntry.getId(),
+            return validationMessages(new ValidationMessage(null, ERROR_TYPE_INVALID, bundleEntry.getId(),
                     INVALID_DISPENSE_MEDICATION_REFERENCE_URL, ERROR));
         if (!isValidCodeableConceptUrl(dispenseMedicationRefUrl, ""))
-            return validationMessages(new ValidationMessage(null, ResourceValidator.INVALID, bundleEntry.getId(),
+            return validationMessages(new ValidationMessage(null, ERROR_TYPE_INVALID, bundleEntry.getId(),
                     INVALID_DISPENSE_MEDICATION_REFERENCE_URL, ERROR));
         return new ArrayList<>();
     }
@@ -107,7 +107,7 @@ public class MedicationPrescriptionValidator implements Validator<BundleEntryCom
         Property medication = bundleEntry.getResource().getChildByName(MEDICATION);
         if ((medication == null) || (!medication.hasValues())) {
             logger.debug(String.format("Medication-Prescription:Encounter failed for %s", UNSPECIFIED_MEDICATION));
-            return validationMessages(new ValidationMessage(null, ResourceValidator.INVALID, bundleEntry.getId(),
+            return validationMessages(new ValidationMessage(null, ERROR_TYPE_INVALID, bundleEntry.getId(),
                     UNSPECIFIED_MEDICATION,
                     ERROR));
         }
@@ -115,11 +115,11 @@ public class MedicationPrescriptionValidator implements Validator<BundleEntryCom
         if ((medicationRefUrl == null)) return new ArrayList<>();
         if (!urlValidator.isValid(medicationRefUrl)) {
             logger.debug(String.format("Medication-Prescription:Encounter failed for %s", INVALID_MEDICATION_REFERENCE_URL));
-            return validationMessages(new ValidationMessage(null, ResourceValidator.INVALID, bundleEntry.getId(),
+            return validationMessages(new ValidationMessage(null, ERROR_TYPE_INVALID, bundleEntry.getId(),
                     INVALID_MEDICATION_REFERENCE_URL, ERROR));
         }
         if (!isValidCodeableConceptUrl(medicationRefUrl, ""))
-            return validationMessages(new ValidationMessage(null, ResourceValidator.INVALID, bundleEntry.getId(),
+            return validationMessages(new ValidationMessage(null, ERROR_TYPE_INVALID, bundleEntry.getId(),
                     INVALID_MEDICATION_REFERENCE_URL, ERROR));
         return new ArrayList<>();
     }

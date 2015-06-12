@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.freeshr.validations.ResourceValidator.INVALID;
 import static org.hl7.fhir.instance.model.OperationOutcome.IssueSeverity.ERROR;
 
 @Component
@@ -41,7 +40,7 @@ public class ProviderValidator implements Validator<Bundle> {
                 if (!clinicalResourceProviderIdentifier.isValid(resource, shrProperties)) {
                     logger.debug(String.format("Provider:Encounter failed for %s", ValidationMessages.INVALID_PROVIDER_URL));
                     validationMessages.add(new ValidationMessage(ValidationMessage.Source.ProfileValidator,
-                            INVALID, entry.getId(),
+                            ERROR_TYPE_INVALID, entry.getId(),
                             ValidationMessages.INVALID_PROVIDER_URL + " in " + resource.getResourceType().getPath(), ERROR));
                 }
             }
