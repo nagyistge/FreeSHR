@@ -1,13 +1,10 @@
 package org.freeshr.validations;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import org.freeshr.application.fhir.EncounterBundle;
 import org.freeshr.config.SHRConfig;
 import org.freeshr.config.SHREnvironmentMock;
 import org.freeshr.data.EncounterBundleData;
 import org.freeshr.util.ValidationMessageList;
-import org.freeshr.utils.BundleDeserializer;
-import org.freeshr.utils.FileUtil;
 import org.hl7.fhir.instance.model.Bundle;
 import org.hl7.fhir.instance.validation.ValidationMessage;
 import org.junit.Rule;
@@ -20,6 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.freeshr.utils.BundleHelper.getBundle;
 import static org.freeshr.utils.FileUtil.asString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -45,7 +43,7 @@ public class FacilityValidatorIT {
                         .withHeader("Content-Type", "application/json")
                         .withBody(asString("jsons/facility10000069.json"))));
 
-        Bundle bundle = getBundle("xmls/encounters/encounterWithValidFacility.xml", EncounterBundleData.HEALTH_ID);
+        Bundle bundle = getBundle("xmls/encounters/simple_valid_encounter.xml", EncounterBundleData.HEALTH_ID);
 
         List<ValidationMessage> validationMessages = validator.validate(bundle);
 
@@ -77,11 +75,5 @@ public class FacilityValidatorIT {
         assertTrue(new ValidationMessageList(validationMessages).hasMessage(FacilityValidator.INVALID_SERVICE_PROVIDER_URL));
     }
 
-    private Bundle getBundle(String filePath, String healthId) {
-        EncounterBundle encounterBundle = EncounterBundleData.encounter(healthId,
-                FileUtil.asString(filePath));
-        BundleDeserializer bundleDeserializer = new BundleDeserializer();
-        return bundleDeserializer.deserialize(encounterBundle.getContent());
-    }
 
 }

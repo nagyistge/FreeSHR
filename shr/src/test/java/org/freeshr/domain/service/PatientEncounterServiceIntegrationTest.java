@@ -79,7 +79,7 @@ public class PatientEncounterServiceIntegrationTest {
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
-                        .withBody(asString("jsons/patient.json"))));
+                        .withBody(asString("jsons/patient_5893922485019082753.json"))));
 
         givenThat(get(urlEqualTo("/api/default/patients/" + VALID_HEALTH_ID_NEW))
                 .willReturn(aResponse()

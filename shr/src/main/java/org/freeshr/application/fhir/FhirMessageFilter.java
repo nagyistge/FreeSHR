@@ -19,9 +19,26 @@ public class FhirMessageFilter {
         ignoreList.add("f:DiagnosticReport/f:name");
     }
 
-    public EncounterValidationResponse filterMessagesSevereThan(List<ValidationMessage> outputs,
-                                                                final OperationOutcome.IssueSeverity severity) {
-        return CollectionUtils.reduce(CollectionUtils.filter(outputs, new CollectionUtils.Fn<ValidationMessage,
+    public EncounterValidationResponse getValidationResponseFromMessagesSevereThan(List<ValidationMessage> outputs,
+                                                                                   final OperationOutcome.IssueSeverity severity) {
+        List<ValidationMessage> extractedMessages = extractMessagesSevereThan(outputs, severity);
+
+        return CollectionUtils.reduce(extractedMessages, new EncounterValidationResponse(), new CollectionUtils.ReduceFn<ValidationMessage,
+                EncounterValidationResponse>() {
+            @Override
+            public EncounterValidationResponse call(ValidationMessage input, EncounterValidationResponse acc) {
+                Error error = new Error();
+                error.setField(input.getLocation());
+                error.setType(input.getType());
+                error.setReason(input.getMessage());
+                acc.addError(error);
+                return acc;
+            }
+        });
+    }
+
+    public List<ValidationMessage> extractMessagesSevereThan(List<ValidationMessage> outputs, final OperationOutcome.IssueSeverity severity) {
+        return CollectionUtils.filter(outputs, new CollectionUtils.Fn<ValidationMessage,
                 Boolean>() {
             @Override
             public Boolean call(ValidationMessage input) {
@@ -36,17 +53,6 @@ public class FhirMessageFilter {
                 }
                 return possibleError;
 
-            }
-        }), new EncounterValidationResponse(), new CollectionUtils.ReduceFn<ValidationMessage,
-                EncounterValidationResponse>() {
-            @Override
-            public EncounterValidationResponse call(ValidationMessage input, EncounterValidationResponse acc) {
-                Error error = new Error();
-                error.setField(input.getLocation());
-                error.setType(input.getType());
-                error.setReason(input.getMessage());
-                acc.addError(error);
-                return acc;
             }
         });
     }

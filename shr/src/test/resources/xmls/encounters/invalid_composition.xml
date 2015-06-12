@@ -1,62 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<feed xmlns="http://www.w3.org/2005/Atom">
-    <title>Encounter</title>
-    <id>urn:1faa88db-ef1a-4729-b0bf-6870dbd8590b</id>
-    <updated>2014-09-22T13:48:18+05:30</updated>
-    <entry>
-        <title>Composition</title>
-        <id>urn:Encounter - c41cabed-3c47-4260-bd70-ac4893b97ee8</id>
-        <updated>2014-09-22T18:40:07.504+05:30</updated>
-        <author>
-            <name>bahmni</name>
-        </author>
-        <content type="text/xml">
-            <Composition xmlns="http://hl7.org/fhir">
-                <identifier>
-                    <value value="Encounter - c41cabed-3c47-4260-bd70-ac4893b97ee8"/>
-                </identifier>
-                <date value="2014-09-22T13:48:18+05:30"/>
-                <status value="final"/>
-                <section>
-                    <content>
-                        <reference value="c41cabed-3c47-4260-bd70-ac4893b97ee8"/>
-                        <display value="Encounter"/>
-                    </content>
-                </section>
-            </Composition>
-        </content>
-    </entry>
-    <entry>
-        <title>Encounter</title>
-        <id>urn:c41cabed-3c47-4260-bd70-ac4893b97ee8</id>
-        <updated>2014-09-22T18:40:07.504+05:30</updated>
-        <author>
-            <name>bahmni</name>
-        </author>
-        <content type="text/xml">
-            <Encounter xmlns="http://hl7.org/fhir">
+<Bundle xmlns="http://hl7.org/fhir">
+    <id value="1faa88db-ef1a-4729-b0bf-6870dbd8590b"/>
+    <meta>
+        <lastUpdated value="2014-09-22T13:48:18+05:30"/>
+    </meta>
+    <type value="document"/>
+    <base value="urn:uuid:"/>
+    <entry id="c41cabed-3c47-4260-bd70-ac4893b97ee8">
+        <resource>
+            <Composition>
+                <id value="c41cabed-3c47-4260-bd70-ac4893b97ee8"/>
                 <identifier>
                     <value value="c41cabed-3c47-4260-bd70-ac4893b97ee8"/>
+                </identifier>
+                <date value="2014-09-22T13:48:18+05:30"/>
+                <type>
+                    <coding>
+                        <system value="http://localhost:9997/openmrs/ws/rest/v1/tr/vs/doc-typecodes"/>
+                        <code value="11488-4"/>
+                    </coding>
+                </type>
+                <status value="final"/>
+                <confidentiality value="N"/>
+                <author>
+                    <reference value="http://localhost:9997/facilities/10000069.json"/>
+                </author>
+                <encounter>
+                    <reference value="urn:uuid:d41cabed-3c47-4260-bd70-ac4893b97ez8"/>
+                    <display value="Encounter"/>
+                </encounter>
+            </Composition>
+        </resource>
+    </entry>
+    <entry id="d41cabed-3c47-4260-bd70-ac4893b97ez8">
+        <resource>
+            <Encounter>
+                <id value="d41cabed-3c47-4260-bd70-ac4893b97ez8"/>
+                <identifier>
+                    <value value="d41cabed-3c47-4260-bd70-ac4893b97ez8"/>
                 </identifier>
                 <status value="finished"/>
                 <class value="outpatient"/>
                 <type>
                     <text value="INVESTIGATION"/>
                 </type>
-                <subject>
-                    <reference value="5893922485019082753"/>
-                </subject>
-                <participant>
-                    <individual>
-                        <reference value="456e6c79-35be-11e4-9d09-08002773bf1c"/>
-                    </individual>
-                </participant>
-                <indication>
-                    <reference value="c41cabed-3c47-4260-bd70-ac4893b97ee8"/>
-                    <display value="encounter"/>
-                </indication>
+                <patient>
+                    <reference value="http://localhost:9997/api/default/patients/5893922485019082753"/>
+                </patient>
+                <serviceProvider>
+                    <reference value="http://localhost:9997/facilities/10000069.json"/>
+                </serviceProvider>
             </Encounter>
-        </content>
+        </resource>
     </entry>
-</feed>
+</Bundle>

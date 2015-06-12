@@ -40,7 +40,7 @@ public class EncounterValidator {
     public EncounterValidationResponse validate(EncounterValidationContext validationContext) {
         try {
             EncounterValidationResponse validationResponse = fromValidationMessages(
-                    fhirSchemaValidator.validate(validationContext.sourceFragment()), fhirMessageFilter);
+                    fhirSchemaValidator.validate(validationContext.getContent()), fhirMessageFilter);
             if (validationResponse.isNotSuccessful()) return validationResponse;
 
             validationResponse = fromValidationMessages(

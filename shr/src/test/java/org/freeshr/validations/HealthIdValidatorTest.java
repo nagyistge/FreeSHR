@@ -51,7 +51,8 @@ public class HealthIdValidatorTest {
     @Test
     public void shouldAcceptEncounterIfHealthIdInTheXmlMatchesTheGivenHealthIdAllVersions() {
         final String xml = FileUtil.asString("xmls/encounters/diagnostic_order_valid.xml");
-        AtomFeed feed = resourceOrFeedDeserializer.deserialize(xml);
+        Bundle bundle = bundleDeserializer.deserialize(xml);
+
         when(shrProperties.getPatientReferencePath()).thenReturn("http://localhost:9997/api/v1/patients");
         List<ValidationMessage> response = healthIdValidator.validate(getEncounterContext(xml, "5893922485019082753"));
         assertThat(EncounterValidationResponse.fromValidationMessages(response, fhirMessageFilter).isSuccessful(),

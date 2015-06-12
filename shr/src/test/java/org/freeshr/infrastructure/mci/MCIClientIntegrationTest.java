@@ -71,7 +71,7 @@ public class MCIClientIntegrationTest {
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
-                        .withBody(asString("jsons/patient.json"))));
+                        .withBody(asString("jsons/patient_5893922485019082753.json"))));
 
         Patient patient = mci.getPatient(heathId, getUserInfo(clientId, userEmail, accessToken)).toBlocking().first();
 

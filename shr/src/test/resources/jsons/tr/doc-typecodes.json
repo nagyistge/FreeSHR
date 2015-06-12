@@ -1,0 +1,14 @@
+{
+  "resourceType": "ValueSet",
+  "define": {
+    "system": "http://localhost:9997/openmrs/ws/rest/v1/tr/vs/doc-typecodes",
+    "caseSensitive": true,
+    "concept": [
+      {
+        "code": "11488-4",
+        "display": "Consult note",
+        "definition": ""
+      }
+    ]
+  }
+}

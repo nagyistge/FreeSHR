@@ -6,19 +6,16 @@ import org.hl7.fhir.instance.model.Bundle;
 
 public class EncounterValidationContext {
     private EncounterBundle encounterBundle;
-    private BundleDeserializer bundleDeserializer;
     private Bundle bundle;
 
-    public EncounterValidationContext(EncounterBundle encounterBundle,
-                                      BundleDeserializer bundleDeserializer) {
+    public EncounterValidationContext(EncounterBundle encounterBundle) {
         this.encounterBundle = encounterBundle;
-        this.bundleDeserializer = bundleDeserializer;
     }
 
     public Bundle getBundle() {
         //deserialize only once
         if (bundle != null) return bundle;
-        bundle = bundleDeserializer.deserialize(encounterBundle.getContent());
+        bundle = new BundleDeserializer().deserialize(encounterBundle.getContent());
         return bundle;
     }
 
@@ -30,7 +27,7 @@ public class EncounterValidationContext {
         return this;
     }
 
-    public String sourceFragment() {
+    public String getContent() {
         return encounterBundle.getContent();
     }
 }

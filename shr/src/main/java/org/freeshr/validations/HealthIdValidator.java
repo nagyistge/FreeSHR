@@ -17,7 +17,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.freeshr.validations.ValidationMessages.HEALTH_ID_NOT_MATCH;
-import static org.freeshr.validations.ValidationMessages.HEALTH_ID_NOT_PRESENT_IN_COMPOSITION;
 
 @Component
 public class HealthIdValidator implements Validator<EncounterValidationContext> {
@@ -37,28 +36,22 @@ public class HealthIdValidator implements Validator<EncounterValidationContext> 
         Bundle bundle = validationContext.getBundle();
         String expectedHealthId = validationContext.getHealthId();
         List<ValidationMessage> validationMessages = new ArrayList<>();
-        for (BundleEntryComponent atomEntry : bundle.getEntry()) {
-            Resource resource = atomEntry.getResource();
-            ResourceType resourceType = resource.getResourceType();
+        for (BundleEntryComponent entry : bundle.getEntry()) {
+            Resource resource = entry.getResource();
             Property patientReference = getPatientReference(resource);
 
             boolean isPatientReferencePresent = hasValue(patientReference);
-            if (resourceType.equals(ResourceType.Composition) && !isPatientReferencePresent) {
-                logger.debug(String.format("Encounter failed for %s", HEALTH_ID_NOT_PRESENT_IN_COMPOSITION));
-                validationMessages.add(new ValidationMessage(ValidationMessage.Source.ProfileValidator, "invalid", "healthId",
-                        HEALTH_ID_NOT_PRESENT_IN_COMPOSITION, OperationOutcome.IssueSeverity.ERROR));
-                return validationMessages;
+
+            if (isPatientReferencePresent) {
+                Reference subjectRef = (Reference) patientReference.getValues().get(0);
+                String healthIdFromUrl = validateAndIdentifyPatientId(subjectRef.getReference(), expectedHealthId);
+                if (healthIdFromUrl == null) {
+                    logger.debug(String.format("Encounter failed for %s", HEALTH_ID_NOT_MATCH));
+                    validationMessages.add(new ValidationMessage(ValidationMessage.Source.ProfileValidator, ResourceValidator.INVALID, entry.getId(),
+                            HEALTH_ID_NOT_MATCH, OperationOutcome.IssueSeverity.ERROR));
+                }
             }
 
-            if (!isPatientReferencePresent) continue;
-
-            Reference subjectRef = (Reference) patientReference.getValues().get(0);
-            String healthIdFromUrl = validateAndIdentifyPatientId(subjectRef.getReference(), expectedHealthId);
-            if (healthIdFromUrl == null) {
-                logger.debug(String.format("Encounter failed for %s", HEALTH_ID_NOT_MATCH));
-                validationMessages.add(new ValidationMessage(ValidationMessage.Source.ProfileValidator, "invalid", atomEntry.getId(),
-                        HEALTH_ID_NOT_MATCH, OperationOutcome.IssueSeverity.ERROR));
-            }
         }
         return validationMessages;
     }

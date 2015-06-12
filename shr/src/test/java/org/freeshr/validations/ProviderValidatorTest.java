@@ -1,13 +1,10 @@
 package org.freeshr.validations;
 
 import org.freeshr.application.fhir.EncounterBundle;
-import org.freeshr.application.fhir.FhirMessageFilter;
 import org.freeshr.config.SHRConfig;
 import org.freeshr.config.SHREnvironmentMock;
-import org.freeshr.utils.BundleDeserializer;
 import org.freeshr.utils.FileUtil;
 import org.hl7.fhir.instance.validation.ValidationMessage;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,14 +22,6 @@ public class ProviderValidatorTest {
 
     @Autowired
     ProviderValidator providerValidator;
-    BundleDeserializer bundleDeserializer;
-    FhirMessageFilter fhirMessageFilter;
-
-    @Before
-    public void setup() {
-        bundleDeserializer = new BundleDeserializer();
-        fhirMessageFilter = new FhirMessageFilter();
-    }
 
     @Test
     public void shouldValidateEncounterWithValidProvider() throws Exception {
@@ -62,7 +51,7 @@ public class ProviderValidatorTest {
         EncounterBundle encounterBundle = new EncounterBundle();
         encounterBundle.setEncounterContent(xml);
         encounterBundle.setHealthId(healthId);
-        return new EncounterValidationContext(encounterBundle, bundleDeserializer);
+        return new EncounterValidationContext(encounterBundle);
     }
 
     private void assertFailureFromResponseErrors(String fieldName, String reason, List<ValidationMessage> validationMessages) {

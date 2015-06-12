@@ -15,8 +15,8 @@ public class BundleHelper {
     public static BundleEntryComponent getBundleEntry(String bundleFile, ResourceType resourceType) {
         EncounterBundle encounterBundle = EncounterBundleData.encounter(EncounterBundleData.HEALTH_ID,
                 FileUtil.asString(bundleFile));
-        final EncounterValidationContext validationContext = new EncounterValidationContext(encounterBundle,
-                new BundleDeserializer());
+        final EncounterValidationContext validationContext = new EncounterValidationContext(encounterBundle
+        );
 
         Bundle bundle = validationContext.getBundle();
         List<BundleEntryComponent> entries = bundle.getEntry();
@@ -30,5 +30,12 @@ public class BundleHelper {
 
     public static Resource getResource(String bundleFile, ResourceType resourceType) {
         return getBundleEntry(bundleFile, resourceType).getResource();
+    }
+
+    public static Bundle getBundle(String filePath, String healthId) {
+        EncounterBundle encounterBundle = EncounterBundleData.encounter(healthId,
+                FileUtil.asString(filePath));
+        BundleDeserializer bundleDeserializer = new BundleDeserializer();
+        return bundleDeserializer.deserialize(encounterBundle.getContent());
     }
 }

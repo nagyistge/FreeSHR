@@ -52,7 +52,7 @@ public class PatientEncounterControllerIntegrationTest extends APIIntegrationTes
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
-                        .withBody(asString("jsons/patient.json"))));
+                        .withBody(asString("jsons/patient_5893922485019082753.json"))));
 
         givenThat(get(urlEqualTo("/api/default/patients/" + INVALID_HEALTH_ID))
                 .willReturn(aResponse()

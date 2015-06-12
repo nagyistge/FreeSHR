@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Bundle xmlns="http://hl7.org/fhir">
-    <id value="bcf6c340-d04a-4c29-b50c-2552beeee037"/>
+    <id value="urn:1faa88db-ef1a-4729-b0bf-6870dbd8590b"/>
     <meta>
-        <lastUpdated value="2014-07-25T16:50:29+05:30"/>
+        <lastUpdated value="2014-09-22T13:48:18+05:30"/>
     </meta>
     <type value="document"/>
     <base value="urn:uuid:"/>
@@ -11,12 +11,12 @@
             <Composition>
                 <id value="c41cabed-3c47-4260-bd70-ac4893b97ee8"/>
                 <identifier>
-                    <value value="c41cabed-3c47-4260-bd70-ac4893b97ee8"/>
+                    <value value="Encounter - c41cabed-3c47-4260-bd70-ac4893b97ee8"/>
                 </identifier>
                 <date value="2014-09-22T13:48:18+05:30"/>
                 <type>
                     <coding>
-                        <system value="http://www.loinc.org"/>
+                        <system value="http://hl7.org/fhir/vs/doc-codes"/>
                         <code value="11488-4"/>
                     </coding>
                 </type>
@@ -32,35 +32,24 @@
                     <reference value="urn:uuid:c41cabed-3c47-4260-bd70-ac4893b97ee8"/>
                     <display value="encounter"/>
                 </encounter>
-                <section>
-                    <content>
-                        <reference value="urn:uuid:c41cabed-3c47-4260-bd70-ac4893b97ee8"/>
-                        <display value="Encounter"/>
-                    </content>
-                </section>
             </Composition>
         </resource>
     </entry>
-    <entry id="d3cc23c3-1f12-4b89-a415-356feeba0690">
+    <entry id="c41cabed-3c47-4260-bd70-ac4893b97ee8">
         <resource>
             <Encounter>
-                <id value="d3cc23c3-1f12-4b89-a415-356feeba0690"/>
+                <id value="c41cabed-3c47-4260-bd70-ac4893b97ee8"/>
                 <identifier>
                     <value value="c41cabed-3c47-4260-bd70-ac4893b97ee8"/>
                 </identifier>
                 <status value="finished"/>
                 <class value="outpatient"/>
                 <type>
-                    <text value="LAB_RESULT"/>
+                    <text value="INVESTIGATION"/>
                 </type>
                 <patient>
                     <reference value="http://localhost:9997/api/default/patients/5893922485019082753"/>
                 </patient>
-                <participant>
-                    <individual>
-                        <reference value="http://127.0.0.1:9997/providers/18.json"/>
-                    </individual>
-                </participant>
                 <serviceProvider>
                     <reference value="http://127.0.0.1:9997/facilities/10000069.json"/>
                 </serviceProvider>

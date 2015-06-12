@@ -28,8 +28,7 @@ public class EncounterValidationContextTest {
 
         when(bundleDeserializer.deserialize(content)).thenReturn(new AtomFeed());
 
-        EncounterValidationContext validationContext = new EncounterValidationContext(encounterBundle,
-                bundleDeserializer);
+        EncounterValidationContext validationContext = new EncounterValidationContext(encounterBundle);
         validationContext.getBundle();
         validationContext.getBundle();
         validationContext.getBundle();
