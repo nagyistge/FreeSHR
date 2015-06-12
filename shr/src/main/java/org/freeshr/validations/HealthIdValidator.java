@@ -1,6 +1,7 @@
 package org.freeshr.validations;
 
 
+import org.freeshr.application.fhir.ValidationErrorType;
 import org.freeshr.config.SHRProperties;
 import org.freeshr.utils.StringUtils;
 import org.hl7.fhir.instance.model.*;
@@ -47,7 +48,7 @@ public class HealthIdValidator implements Validator<EncounterValidationContext> 
                 String healthIdFromUrl = validateAndIdentifyPatientId(subjectRef.getReference(), expectedHealthId);
                 if (healthIdFromUrl == null) {
                     logger.debug(String.format("Encounter failed for %s", HEALTH_ID_NOT_MATCH));
-                    validationMessages.add(new ValidationMessage(ValidationMessage.Source.ProfileValidator, ERROR_TYPE_INVALID, entry.getId(),
+                    validationMessages.add(new ValidationMessage(ValidationMessage.Source.ProfileValidator, ValidationErrorType.INVALID, entry.getId(),
                             HEALTH_ID_NOT_MATCH, OperationOutcome.IssueSeverity.ERROR));
                 }
             }

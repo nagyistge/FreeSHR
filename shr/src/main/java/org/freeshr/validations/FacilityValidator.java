@@ -3,8 +3,11 @@ package org.freeshr.validations;
 import org.freeshr.config.SHRProperties;
 import org.freeshr.domain.model.Facility;
 import org.freeshr.domain.service.FacilityService;
-import org.hl7.fhir.instance.model.*;
+import org.hl7.fhir.instance.model.Bundle;
 import org.hl7.fhir.instance.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.instance.model.Encounter;
+import org.hl7.fhir.instance.model.Reference;
+import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.validation.ValidationMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +20,7 @@ import rx.functions.Func1;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.freeshr.application.fhir.ValidationErrorType.INVALID;
 import static org.hl7.fhir.instance.model.OperationOutcome.IssueSeverity;
 
 @Component
@@ -45,7 +49,7 @@ public class FacilityValidator implements Validator<Bundle> {
         }
         String facilityUrl = serviceProvider.getReference();
         if (facilityUrl.isEmpty() || !isValidFacilityUrl(facilityUrl)) {
-            validationMessages.add(buildValidationMessage(ERROR_TYPE_INVALID, encounterEntry.getId(),
+            validationMessages.add(buildValidationMessage(INVALID, encounterEntry.getId(),
                     INVALID_SERVICE_PROVIDER_URL, IssueSeverity.ERROR));
             logger.debug("Encounter failed for invalid facility URL");
             return validationMessages;
@@ -53,7 +57,7 @@ public class FacilityValidator implements Validator<Bundle> {
 
         Facility facility = checkForFacility(facilityUrl).toBlocking().first();
         if (facility == null) {
-            validationMessages.add(buildValidationMessage(ERROR_TYPE_INVALID, encounterEntry.getId(), INVALID_SERVICE_PROVIDER,
+            validationMessages.add(buildValidationMessage(INVALID, encounterEntry.getId(), INVALID_SERVICE_PROVIDER,
                     IssueSeverity.ERROR));
             return validationMessages;
         }

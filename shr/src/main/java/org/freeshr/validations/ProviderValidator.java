@@ -1,5 +1,6 @@
 package org.freeshr.validations;
 
+import org.freeshr.application.fhir.ValidationErrorType;
 import org.freeshr.config.SHRProperties;
 import org.freeshr.validations.providerIdentifiers.ClinicalResourceProviderIdentifier;
 import org.hl7.fhir.instance.model.Bundle;
@@ -40,7 +41,7 @@ public class ProviderValidator implements Validator<Bundle> {
                 if (!clinicalResourceProviderIdentifier.isValid(resource, shrProperties)) {
                     logger.debug(String.format("Provider:Encounter failed for %s", ValidationMessages.INVALID_PROVIDER_URL));
                     validationMessages.add(new ValidationMessage(ValidationMessage.Source.ProfileValidator,
-                            ERROR_TYPE_INVALID, entry.getId(),
+                            ValidationErrorType.INVALID, entry.getId(),
                             ValidationMessages.INVALID_PROVIDER_URL + " in " + resource.getResourceType().getPath(), ERROR));
                 }
             }

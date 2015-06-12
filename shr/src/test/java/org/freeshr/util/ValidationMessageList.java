@@ -29,7 +29,7 @@ public class ValidationMessageList {
         return false;
     }
 
-    public boolean isSuccessfull(){
+    public boolean isEmpty(){
         return this.validationMessages.isEmpty();
     }
 

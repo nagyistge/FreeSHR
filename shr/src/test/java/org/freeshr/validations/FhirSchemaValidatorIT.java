@@ -17,8 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static org.freeshr.application.fhir.ValidationErrorType.STRUCTURE;
 import static org.freeshr.utils.FileUtil.asString;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -34,7 +33,7 @@ public class FhirSchemaValidatorIT {
     public WireMockRule wireMockRule = new WireMockRule(9997);
 
     @Before
-    public void setUp(){
+    public void setUp() {
         givenThat(get(urlEqualTo("/openmrs/ws/rest/v1/tr/vs/doc-typecodes"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -65,9 +64,9 @@ public class FhirSchemaValidatorIT {
         String xml = FileUtil.asString("xmls/encounters/invalid_composition.xml");
         List<ValidationMessage> validationMessages = validator.validate(xml);
         ValidationMessageList messageList = new ValidationMessageList(validationMessages);
-        assertFalse(messageList.isSuccessfull());
+        assertFalse(messageList.isEmpty());
         assertTrue(messageList.isOfSize(1));
         assertTrue(messageList.hasErrorOfTypeAndMessage("Element subject @ /f:Bundle/f:entry[1]/f:resource/f:Composition: min required = 1, but only found 0",
-                Validator.ERROR_TYPE_STRUCTURE));
+                STRUCTURE));
     }
 }

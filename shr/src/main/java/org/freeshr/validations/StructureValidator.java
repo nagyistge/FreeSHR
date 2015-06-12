@@ -6,8 +6,10 @@ import org.hl7.fhir.instance.validation.ValidationMessage;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import static org.freeshr.application.fhir.ValidationErrorType.STRUCTURE;
 import static org.freeshr.validations.ValidationMessages.FEED_MUST_HAVE_COMPOSITION;
 
 @Component
@@ -20,7 +22,7 @@ public class StructureValidator implements Validator<Bundle> {
 
         if (compositionEntry == null) {
 
-            validationMessages.add(new ValidationMessage(null, ERROR_TYPE_INVALID, "Feed",
+            validationMessages.add(new ValidationMessage(null, STRUCTURE, "Feed",
                     FEED_MUST_HAVE_COMPOSITION, OperationOutcome.IssueSeverity.ERROR));
             return validationMessages;
         }
@@ -32,7 +34,7 @@ public class StructureValidator implements Validator<Bundle> {
         //Add error for each section with no entry.
         for (String entryReferenceId : compositionSectionIds) {
 
-            validationMessages.add(new ValidationMessage(null, ERROR_TYPE_INVALID, entryReferenceId, String
+            validationMessages.add(new ValidationMessage(null, STRUCTURE, entryReferenceId, String
                     .format
                             ("No entry present" +
                                     " for the section with id %s", entryReferenceId), OperationOutcome.IssueSeverity.ERROR));
@@ -47,20 +49,25 @@ public class StructureValidator implements Validator<Bundle> {
         List<String> resourceDetailsList = new ArrayList<>();
 
         for (BundleEntryComponent atomEntry : entryList) {
-            if (!atomEntry.getResource().getResourceType().equals(ResourceType.Composition)) {
+            if (isSectionEntryRequiredInComposition(atomEntry)) {
                 String identifier = ((Identifier) atomEntry.getResource().getChildByName("identifier").getValues()
                         .get(0)).getValue();
                 resourceDetailsList.add(identifier);
 
                 if (compositionSectionIds.contains(identifier)) continue;
 
-                validationMessages.add(new ValidationMessage(null, ERROR_TYPE_INVALID, identifier, String.format
+                validationMessages.add(new ValidationMessage(null, STRUCTURE, identifier, String.format
                         ("Entry with id %s " +
                                         "is not present in the composition section list.",
                                 identifier), OperationOutcome.IssueSeverity.ERROR));
             }
         }
         return resourceDetailsList;
+    }
+
+    private boolean isSectionEntryRequiredInComposition(BundleEntryComponent entry) {
+        List<ResourceType> resourceTypes = Arrays.asList(ResourceType.Composition, ResourceType.Encounter);
+        return !resourceTypes.contains(entry.getResource().getResourceType());
     }
 
     private List<String> identifySectionIdsFromComposition(BundleEntryComponent compositionEntry) {

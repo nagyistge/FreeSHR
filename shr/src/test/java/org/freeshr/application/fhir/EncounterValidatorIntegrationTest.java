@@ -76,17 +76,11 @@ public class EncounterValidatorIntegrationTest {
                 healthIdValidator, structureValidator, providerValidator, facilityValidator);
         encounterBundle = EncounterBundleData.withValidEncounter();
 
-        givenThat(get(urlEqualTo("/openmrs/ws/rest/v1/tr/drugs/3be99d23-e50d-41a6-ad8c-f6434e49f513"))
+        givenThat(get(urlEqualTo("/openmrs/ws/rest/v1/tr/vs/doc-typecodes"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
-                        .withBody(asString("jsons/medication_paracetamol.json"))));
-
-        givenThat(get(urlEqualTo("/openmrs/ws/rest/v1/tr/vs/Quantity-Units"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/json")
-                        .withBody(asString("jsons/code.json"))));
+                        .withBody(asString("jsons/tr/doc-typecodes.json"))));
 
         givenThat(get(urlEqualTo("/facilities/10000069.json"))
                 .withHeader("client_id", matching("18550"))
@@ -96,13 +90,24 @@ public class EncounterValidatorIntegrationTest {
                         .withHeader("Content-Type", "application/json")
                         .withBody(asString("jsons/facility10000069.json"))));
 
+//        givenThat(get(urlEqualTo("/openmrs/ws/rest/v1/tr/drugs/3be99d23-e50d-41a6-ad8c-f6434e49f513"))
+//                .willReturn(aResponse()
+//                        .withStatus(200)
+//                        .withHeader("Content-Type", "application/json")
+//                        .withBody(asString("jsons/medication_paracetamol.json"))));
+//
+//        givenThat(get(urlEqualTo("/openmrs/ws/rest/v1/tr/vs/Quantity-Units"))
+//                .willReturn(aResponse()
+//                        .withStatus(200)
+//                        .withHeader("Content-Type", "application/json")
+//                        .withBody(asString("jsons/code.json"))));
     }
 
 
     @Test
     public void shouldValidateEncounterWhenInProperFormat() throws Exception {
         encounterBundle = EncounterBundleData.encounter(EncounterBundleData.HEALTH_ID,
-                FileUtil.asString("xmls/encounters/encounter.xml"));
+                FileUtil.asString("xmls/encounters/simple_valid_encounter.xml"));
         validationContext = new EncounterValidationContext(encounterBundle);
         EncounterValidationResponse response = validator.validate(validationContext);
         assertTrue(response.isSuccessful());

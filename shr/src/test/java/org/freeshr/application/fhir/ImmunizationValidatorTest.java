@@ -50,7 +50,7 @@ public class ImmunizationValidatorTest {
 
         List<ValidationMessage> validationMessages = immunizationValidator.validate(bundleEntry);
 
-        assertTrue(new ValidationMessageList(validationMessages).isSuccessfull());
+        assertTrue(new ValidationMessageList(validationMessages).isEmpty());
     }
 
     @Test

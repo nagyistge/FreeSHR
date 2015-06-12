@@ -28,10 +28,6 @@
                 <author>
                     <reference value="http://127.0.0.1:9997/facilities/10000069.json"/>
                 </author>
-                <encounter>
-                    <reference value="urn:uuid:c41cabed-3c47-4260-bd70-ad4893b97ed8"/>
-                    <display value="encounter"/>
-                </encounter>
             </Composition>
         </resource>
     </entry>

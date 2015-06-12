@@ -1,6 +1,7 @@
 package org.freeshr.validations;
 
 import org.freeshr.application.fhir.EncounterBundle;
+import org.freeshr.application.fhir.ValidationErrorType;
 import org.freeshr.config.SHRConfig;
 import org.freeshr.config.SHREnvironmentMock;
 import org.freeshr.util.ValidationMessageList;
@@ -28,7 +29,7 @@ public class HealthIdValidatorIT {
     public void shouldAcceptEncounterIfHealthIdInTheXmlMatchesTheGivenHealthId() {
         final String xml = FileUtil.asString("xmls/encounters/simple_valid_encounter.xml");
         List<ValidationMessage> validationMessages = healthIdValidator.validate(getEncounterContext(xml, "5893922485019082753"));
-        assertTrue(new ValidationMessageList(validationMessages).isSuccessfull());
+        assertTrue(new ValidationMessageList(validationMessages).isEmpty());
     }
 
     @Test
@@ -44,9 +45,9 @@ public class HealthIdValidatorIT {
         String xml = FileUtil.asString("xmls/encounters/simple_valid_encounter.xml");
         List<ValidationMessage> validationMessages = healthIdValidator.validate(getEncounterContext(xml, "11112222233333"));
         ValidationMessageList messageList = new ValidationMessageList(validationMessages);
-        assertFalse(messageList.isSuccessfull());
+        assertFalse(messageList.isEmpty());
         assertTrue(messageList.isOfSize(2));
-        assertTrue(messageList.hasErrorOfTypeAndMessage("Patient's Health Id does not match.", Validator.ERROR_TYPE_INVALID));
+        assertTrue(messageList.hasErrorOfTypeAndMessage("Patient's Health Id does not match.", ValidationErrorType.INVALID));
     }
 
     private EncounterValidationContext getEncounterContext(final String xml, final String healthId) {

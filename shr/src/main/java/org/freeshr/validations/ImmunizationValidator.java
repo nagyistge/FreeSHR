@@ -1,6 +1,7 @@
 package org.freeshr.validations;
 
 
+import org.freeshr.application.fhir.ValidationErrorType;
 import org.hl7.fhir.instance.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.instance.model.OperationOutcome;
 import org.hl7.fhir.instance.model.Property;
@@ -53,7 +54,7 @@ public class ImmunizationValidator implements Validator<BundleEntryComponent> {
         logger.debug("Medication-Prescription DosageQuantity Code is invalid.");
 
         validationMessages.add(new ValidationMessage(null,
-                ERROR_TYPE_INVALID, atomEntry.getId(),
+                ValidationErrorType.INVALID, atomEntry.getId(),
                 INVALID_DOSAGE_QUANTITY,
                 OperationOutcome.IssueSeverity.ERROR));
         return validationMessages;
