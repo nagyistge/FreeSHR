@@ -15,7 +15,7 @@
                 <date value="2014-12-17T18:26:46+05:30"/>
                 <type>
                     <coding>
-                        <system value="http://hl7.org/fhir/vs/doc-codes"/>
+                        <system value="http://localhost:9997/openmrs/ws/rest/v1/tr/vs/doc-typecodes"/>
                         <code value="11488-4"/>
                     </coding>
                 </type>

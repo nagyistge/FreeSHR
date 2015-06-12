@@ -92,7 +92,7 @@ public class Mapper {
         Element confidentiality = getConfidentiality(document, composition);
         composition.insertBefore(confidentiality, author);
 
-        composition.insertBefore(createType(document, "http://hl7.org/fhir/vs/doc-codes", "11488-4"), confidentiality);
+        composition.insertBefore(createType(document, "http://localhost:9997/openmrs/ws/rest/v1/tr/vs/doc-typecodes", "11488-4"), confidentiality);
 
         return composition;
     }

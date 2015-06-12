@@ -2,6 +2,7 @@ package org.freeshr.application.fhir;
 
 import org.freeshr.config.SHRConfig;
 import org.freeshr.config.SHREnvironmentMock;
+import org.freeshr.util.ValidationMessageList;
 import org.freeshr.validations.DoseQuantityValidator;
 import org.freeshr.validations.ImmunizationValidator;
 import org.freeshr.validations.UrlValidator;
@@ -21,7 +22,6 @@ import java.util.List;
 
 import static org.freeshr.utils.BundleHelper.getBundleEntry;
 import static org.freeshr.validations.ValidationMessages.INVALID_DOSAGE_QUANTITY;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.eq;
@@ -50,7 +50,7 @@ public class ImmunizationValidatorTest {
 
         List<ValidationMessage> validationMessages = immunizationValidator.validate(bundleEntry);
 
-        assertTrue(validationMessages.isEmpty());
+        assertTrue(new ValidationMessageList(validationMessages).isSuccessfull());
     }
 
     @Test
@@ -67,8 +67,9 @@ public class ImmunizationValidatorTest {
 
         List<ValidationMessage> validationMessasges = immunizationValidator.validate(feed);
 
-        assertEquals(1, validationMessasges.size());
-        assertEquals(INVALID_DOSAGE_QUANTITY, validationMessasges.get(0).getMessage());
+        ValidationMessageList messageList = new ValidationMessageList(validationMessasges);
+        assertTrue(messageList.isOfSize(1));
+        assertTrue(messageList.hasMessage(INVALID_DOSAGE_QUANTITY));
     }
 
     private ImmunizationValidator getValidator() {
