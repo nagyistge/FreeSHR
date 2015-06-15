@@ -11,7 +11,7 @@ public class ValidationMessages {
     public static final String INVALID_DOSAGE_QUANTITY_REFERENCE = "Invalid Dosage Quantity Reference URL";
     public static final String UNSPECIFIED_MEDICATION = "Unspecified Medication";
     public static final String INVALID_DISPENSE_MEDICATION_REFERENCE_URL = "Invalid Dispense-Medication Reference URL";
-    public static final String FEED_MUST_HAVE_COMPOSITION = "Feed must have a Composition with an encounter.";
+    public static final String FEED_MUST_HAVE_COMPOSITION_WITH_ENCOUNTER = "Feed must have a Composition with an encounter.";
     public static final String UNKNOWN_CONDITION_RELATION_CODE = "Unknown ConditionRelationshipType code";
     public static final String INVALID_PERIOD = "Invalid Period";
     public static final String INVALID_DIAGNOSTIC_REPORT_REFERENCE = "Invalid Diagnostic Report Reference";

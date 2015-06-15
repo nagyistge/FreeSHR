@@ -69,4 +69,21 @@ public class FhirSchemaValidatorIT {
         assertTrue(messageList.hasErrorOfTypeAndMessage("Element subject @ /f:Bundle/f:entry[1]/f:resource/f:Composition: min required = 1, but only found 0",
                 STRUCTURE));
     }
+
+    @Test
+    public void shouldTreatFHIRWarningAsError() {
+        String xml = FileUtil.asString("xmls/encounters/diagnosis_system_invalid.xml");
+
+
+        List<ValidationMessage> validationMessages = validator.validate(xml);
+        ValidationMessageList messageList = new ValidationMessageList(validationMessages);
+//        assertFailureFromResponseErrors("/f:entry/f:content/f:Condition/f:Condition/f:category",
+//                "None of the codes are in the expected value set http://hl7.org/fhir/vs/condition-category (http://hl7" +
+//                        ".org/fhir/vs/condition-category)",
+//                response.getErrors());
+//        assertFailureFromResponseErrors("/f:entry/f:content/f:Condition/f:Condition/f:category/f:coding",
+//                "Unknown Code System http://hl7.org/fhir/condition-category-invalid",
+//                response.getErrors());
+//        assertEquals(2, response.getErrors().size());
+    }
 }

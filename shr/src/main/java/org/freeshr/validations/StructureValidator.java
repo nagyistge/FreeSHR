@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.freeshr.application.fhir.ValidationErrorType.STRUCTURE;
-import static org.freeshr.validations.ValidationMessages.FEED_MUST_HAVE_COMPOSITION;
+import static org.freeshr.validations.ValidationMessages.FEED_MUST_HAVE_COMPOSITION_WITH_ENCOUNTER;
 
 @Component
 public class StructureValidator implements Validator<Bundle> {
@@ -18,12 +18,11 @@ public class StructureValidator implements Validator<Bundle> {
     public List<ValidationMessage> validate(Bundle bundle) {
         List<ValidationMessage> validationMessages = new ArrayList<>();
 
-        BundleEntryComponent compositionEntry = hasCompositionWithEncounter(bundle.getEntry());
+        BundleEntryComponent compositionEntry = getCompositionEntry(bundle.getEntry());
 
-        if (compositionEntry == null) {
-
+        if(!hasEncounterEntry(compositionEntry)) {
             validationMessages.add(new ValidationMessage(null, STRUCTURE, "Feed",
-                    FEED_MUST_HAVE_COMPOSITION, OperationOutcome.IssueSeverity.ERROR));
+                    FEED_MUST_HAVE_COMPOSITION_WITH_ENCOUNTER, OperationOutcome.IssueSeverity.ERROR));
             return validationMessages;
         }
 
@@ -43,26 +42,29 @@ public class StructureValidator implements Validator<Bundle> {
         return validationMessages;
     }
 
+    private boolean hasEncounterEntry(BundleEntryComponent compositionEntry) {
+        return !((Composition)compositionEntry.getResource()).getEncounter().isEmpty();
+    }
+
     private List<String> verifyEntryReferenceIds(List<BundleEntryComponent> entryList,
                                                  List<String> compositionSectionIds,
                                                  List<ValidationMessage> validationMessages) {
-        List<String> resourceDetailsList = new ArrayList<>();
+        List<String> resourceIds = new ArrayList<>();
 
         for (BundleEntryComponent atomEntry : entryList) {
             if (isSectionEntryRequiredInComposition(atomEntry)) {
-                String identifier = ((Identifier) atomEntry.getResource().getChildByName("identifier").getValues()
-                        .get(0)).getValue();
-                resourceDetailsList.add(identifier);
+                String id = atomEntry.getResource().getId();
+                resourceIds.add(id);
 
-                if (compositionSectionIds.contains(identifier)) continue;
+                if (compositionSectionIds.contains(id)) continue;
 
-                validationMessages.add(new ValidationMessage(null, STRUCTURE, identifier, String.format
+                validationMessages.add(new ValidationMessage(null, STRUCTURE, id, String.format
                         ("Entry with id %s " +
                                         "is not present in the composition section list.",
-                                identifier), OperationOutcome.IssueSeverity.ERROR));
+                                id), OperationOutcome.IssueSeverity.ERROR));
             }
         }
-        return resourceDetailsList;
+        return resourceIds;
     }
 
     private boolean isSectionEntryRequiredInComposition(BundleEntryComponent entry) {
@@ -81,16 +83,14 @@ public class StructureValidator implements Validator<Bundle> {
         return compositionSectionList;
     }
 
-    private BundleEntryComponent hasCompositionWithEncounter(List<BundleEntryComponent> entryList) {
-        BundleEntryComponent compositionEntry = null;
+    private BundleEntryComponent getCompositionEntry(List<BundleEntryComponent> entryList) {
         for (BundleEntryComponent entry : entryList) {
             Resource resource = entry.getResource();
             if (resource.getResourceType().equals(ResourceType.Composition)) {
-                compositionEntry = resource.getChildByName("encounter").hasValues() ? entry : null;
-                break;
+                return entry;
             }
         }
-        return compositionEntry;
+        return null;
     }
 
 }

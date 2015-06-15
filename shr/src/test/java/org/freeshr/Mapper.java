@@ -131,7 +131,8 @@ public class Mapper {
         Element encounter = processResource(document, feed, 1);
 
         Element indication = getNodeAsElement(encounter, "indication", 0);
-        encounter.removeChild(indication);
+        if(indication != null)
+            encounter.removeChild(indication);
 
         return encounter;
     }

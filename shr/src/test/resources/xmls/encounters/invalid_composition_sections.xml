@@ -25,16 +25,13 @@
                 <author>
                     <reference value="http://127.0.0.1:9997/facilities/10000069.json"/>
                 </author>
+                <subject>
+                    <reference value="http://localhost:9997/api/default/patients/5893922485019082753"/>
+                </subject>
                 <encounter>
                     <reference value="urn:uuid:333344445555666677778889999"/>
                     <display value="encounter"/>
                 </encounter>
-                <section>
-                    <content>
-                        <reference value="urn:uuid:c41cabed-3c47-4260-bd70-ac4893b97ee8"/>
-                        <display value="Encounter"/>
-                    </content>
-                </section>
                 <section>
                     <content>
                         <reference value="urn:uuid:11122223333444455556666777788889999"/>
@@ -63,13 +60,8 @@
                     <text value="INVESTIGATION"/>
                 </type>
                 <patient>
-                    <reference value="urn:uuid:5893922485019082753"/>
+                    <reference value="http://localhost:9997/api/default/patients/5893922485019082753"/>
                 </patient>
-                <participant>
-                    <individual>
-                        <reference value="urn:uuid:456e6c79-35be-11e4-9d09-08002773bf1c"/>
-                    </individual>
-                </participant>
             </Encounter>
         </resource>
     </entry>
@@ -78,7 +70,7 @@
             <DiagnosticOrder>
                 <id value="a86018fa-e15d-4004-85bc-a1ee713dc923"/>
                 <subject>
-                    <reference value="urn:uuid:5893922485019082753"/>
+                    <reference value="http://localhost:9997/api/default/patients/5893922485019082753"/>
                 </subject>
                 <orderer>
                     <reference value="urn:uuid:456e6c79-35be-11e4-9d09-08002773bf1c"/>
@@ -112,7 +104,7 @@
                     <value value="5f982a33-4454-4b74-9236-b8157aa8effd"/>
                 </identifier>
                 <patient>
-                    <reference value="http://mci/patients/5893922485019082753"/>
+                    <reference value="http://localhost:9997/api/default/patients/5893922485019082753"/>
                 </patient>
                 <!--  TODO: This is actually an invalid reference. Validations have to be added for references like these  -->
                 <encounter>

@@ -11,8 +11,6 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -47,15 +45,6 @@ public class StructureValidatorTest {
     }
 
     @Test
-    public void shouldRejectIfCompositionDoesNotContainASectionCalledEncounter() {
-        final String xml = FileUtil.asString("xmls/encounters/invalid_composition.xml");
-        List<ValidationMessage> validationMessages = structureValidator.validate(bundleDeserializer.deserialize(xml));
-        assertThat(validationMessages.isEmpty(), is(false));
-        assertThat(validationMessages.size(), is(1));
-        assertThat(validationMessages.get(0).getMessage(), is("Feed must have a Composition with an encounter."));
-    }
-
-    @Test
     public void shouldRejectIfThereIsAMismatchBetweenEntriesAndSections() {
         /*
          Scenarios Covered
@@ -67,7 +56,8 @@ public class StructureValidatorTest {
          */
         final String xml = FileUtil.asString("xmls/encounters/invalid_composition_sections.xml");
         List<ValidationMessage> validationMessages = structureValidator.validate(bundleDeserializer.deserialize(xml));
-        assertThat(validationMessages.isEmpty(), is(false));
-        assertThat(validationMessages.size(), is(4));
+        ValidationMessageList messageList = new ValidationMessageList(validationMessages);
+        assertFalse(messageList.isEmpty());
+        assertTrue(messageList.isOfSize(4));
     }
 }
