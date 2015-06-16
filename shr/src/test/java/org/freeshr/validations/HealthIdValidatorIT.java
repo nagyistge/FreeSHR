@@ -36,7 +36,7 @@ public class HealthIdValidatorIT {
     public void shouldAcceptEncounterIfHealthIdInTheXmlMatchesTheGivenHealthIdAllVersions() {
         final String xml = FileUtil.asString("xmls/encounters/diagnostic_order_valid.xml");
         List<ValidationMessage> validationMessages = healthIdValidator.validate(getEncounterContext(xml, "5893922485019082753"));
-        assertTrue(new ValidationMessageList(validationMessages).isSuccessfull());
+        assertTrue(new ValidationMessageList(validationMessages).isEmpty());
 
     }
 
